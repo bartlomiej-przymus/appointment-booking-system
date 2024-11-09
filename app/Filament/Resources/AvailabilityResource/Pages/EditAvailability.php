@@ -55,10 +55,10 @@ class EditAvailability extends EditRecord
                     ->addMinutes($data['appointment_duration'])
                     ->toTimeString('minute');
 
-            return Slot::firstOrCreate(
-                ['start_time' => $startTime, 'end_time' => $endTime]
-            )->getKey();
-        });
+                return Slot::firstOrCreate(
+                    ['start_time' => $startTime, 'end_time' => $endTime]
+                )->getKey();
+            });
 
         $record->slots()->sync($slotIdsToSync->all());
 

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\ScheduleResource\RelationManagers;
 use App\Enums\DayType;
 use App\Enums\ScheduleType;
 use App\Models\Availability;
-use App\Models\Slot;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
@@ -62,13 +61,13 @@ class DaysRelationManager extends RelationManager
                     ->content(function (Get $get) {
                         $availabilityTable = Availability::where('id', implode($get('availabilities')))->first();
 
-                       $slots = $availabilityTable->slots
-                                ->pluck('start_time')
-                                ->map(fn ($time) => $time->toTimeString('minute'))
-                                ->toArray();
+                        $slots = $availabilityTable->slots
+                            ->pluck('start_time')
+                            ->map(fn ($time) => $time->toTimeString('minute'))
+                            ->toArray();
 
-                       return new HtmlString(implode(', ', $slots));
-                    })
+                        return new HtmlString(implode(', ', $slots));
+                    }),
             ]);
     }
 
