@@ -53,7 +53,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return str_ends_with($this->email, 'stripe.test') && $this->hasVerifiedEmail();
+        return str_ends_with($this->email, parse_url(env('APP_URL'), PHP_URL_HOST)) && $this->hasVerifiedEmail();
     }
 
     public function appointments(): HasMany
