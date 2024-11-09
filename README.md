@@ -37,9 +37,17 @@ As it turns out I need appointment booking system for future project that I'm pl
 - run `npm run dev` to start vite
 
 ### Access
-You can access admin panel on `abs.test/admin`<br>
-User: `admin`<br>
-Pass: `password`
+Please note that user seeder is set to create admin user email that will have same domain as one set in application .env file.<br>
+
+For example if `APP_URL` is set like this:<br>
+`APP_URL=https://myapp.test`<br>
+Seeded admin user email credentials will look like this:<br>
+`admin@myapp.test`
+
+You can access admin panel on `your-configured-domain-name-here/admin`<br>
+
+Email Address: as explained above<br>
+Password: `password`
 
 ### Features to be implemented
 Online appointment booking system consisting of:
