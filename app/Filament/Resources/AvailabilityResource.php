@@ -4,6 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AvailabilityResource\AvailabilityForm;
 use App\Filament\Resources\AvailabilityResource\Pages;
+use App\Filament\Resources\AvailabilityResource\Pages\CreateAvailability;
+use App\Filament\Resources\AvailabilityResource\Pages\EditAvailability;
+use App\Filament\Resources\AvailabilityResource\Pages\ListAvailabilities;
 use App\Models\Availability;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,6 +19,8 @@ use Filament\Tables\Table;
 class AvailabilityResource extends Resource
 {
     protected static ?string $model = Availability::class;
+
+    protected static ?string $modelLabel = 'Availability Table';
 
     protected static ?string $recordTitleAttribute = 'Availability Timetable';
 
@@ -52,9 +57,9 @@ class AvailabilityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAvailabilities::route('/'),
-            'create' => Pages\CreateAvailability::route('/create'),
-            'edit' => Pages\EditAvailability::route('/{record}/edit'),
+            'index' => ListAvailabilities::route('/'),
+            'create' => CreateAvailability::route('/create'),
+            'edit' => EditAvailability::route('/{record}/edit'),
         ];
     }
 }
