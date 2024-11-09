@@ -34,7 +34,7 @@
                 </div>
                 @foreach($calendar['weeks'] as $week)
                     @foreach($week as $day)
-                        <livewire:day :key="$loop->parent->index . $loop->index" :day="$day" />
+{{--                        <livewire:day :key="$loop->parent->index . $loop->index" :day="$day" />--}}
                         <x-calendar.day
                             within-month="{{$day['withinMonth']}}"
                             weekend="{{$day['weekend']}}"
