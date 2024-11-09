@@ -17,6 +17,9 @@ class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
+    // disabled for now
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function table(Table $table): Table
