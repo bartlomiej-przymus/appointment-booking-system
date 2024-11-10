@@ -155,7 +155,6 @@ class AvailabilityForm
             // Move the start time forward by the total slot interval (duration + break)
             $startTime->addMinutes($interval);
         }
-        logger($availableSlots);
 
         return $availableSlots;
     }
