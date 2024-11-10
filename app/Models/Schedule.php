@@ -56,4 +56,12 @@ class Schedule extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function isActive(): bool
+    {
+        return (
+            ! empty($this->active_from) && ! empty($this->active_to)
+            && now()->between($this->active_from, $this->active_to)
+        ) || $this->active;
+    }
 }

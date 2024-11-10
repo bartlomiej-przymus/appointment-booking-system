@@ -47,6 +47,7 @@ class ScheduleResource extends Resource
                     ->badge()
                     ->separator(),
                 IconColumn::make('active')
+                    ->state(fn ($record) => $record->isActive())
                     ->boolean(),
                 TextColumn::make('active_from')
                     ->date(),

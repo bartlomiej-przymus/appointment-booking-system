@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ScheduleResource;
 
 use App\Enums\DayType;
 use App\Enums\ScheduleType;
+use App\Rules\CanSetActive;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
@@ -56,15 +57,25 @@ class ScheduleForm
                     Section::make('Schedule Settings')
                         ->schema([
                             Toggle::make('active')
-                                ->inline(false),
+                                ->hidden(fn (Get $get) => ! empty($get('active_from'))
+                                    && ! empty($get('active_to')))
+                                ->inline(false)
+                                ->rules([
+                                    new CanSetActive,
+                                ])
+                                ->live(),
                             DatePicker::make('active_from')
+                                ->hidden(fn (Get $get) => $get('active'))
                                 ->native(false)
                                 ->before('active_to')
-                                ->required(fn (Get $get) => $get('type') === ScheduleType::Custom->value),
+                                ->required(fn (Get $get) => $get('type') === ScheduleType::Custom->value)
+                                ->live(),
                             DatePicker::make('active_to')
+                                ->hidden(fn (Get $get) => $get('active'))
                                 ->native(false)
                                 ->after('active_from')
-                                ->required(fn (Get $get) => $get('type') === ScheduleType::Custom->value),
+                                ->required(fn (Get $get) => $get('type') === ScheduleType::Custom->value)
+                                ->live(),
                         ]),
                     Section::make('Availability Settings')
                         ->visible(fn (Get $get) => $get('type') === ScheduleType::Daily->value)
