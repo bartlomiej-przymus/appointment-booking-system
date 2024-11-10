@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AvailabilityResource\AvailabilityForm;
-use App\Filament\Resources\AvailabilityResource\Pages;
 use App\Filament\Resources\AvailabilityResource\Pages\CreateAvailability;
 use App\Filament\Resources\AvailabilityResource\Pages\EditAvailability;
 use App\Filament\Resources\AvailabilityResource\Pages\ListAvailabilities;

@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
     {
         User::factory()->create([
             'name' => 'Admin',
-            'email' => 'admin@' . parse_url(env('APP_URL'), PHP_URL_HOST),
+            'email' => 'admin@'.parse_url(env('APP_URL'), PHP_URL_HOST),
         ]);
     }
 }
