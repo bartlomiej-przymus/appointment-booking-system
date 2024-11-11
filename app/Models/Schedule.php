@@ -61,11 +61,25 @@ class Schedule extends Model
     {
         if ($this->active) {
             return true;
-        } elseif (! empty($this->active_from) && ! empty($this->active_to)
-            && now()->between($this->active_from, $this->active_to)) {
-            return true;
         }
 
-        return false;
+        return $this->hasValidDateRange()
+            && $this->isWithinActivePeriod()
+            && !$this->hasActiveConflicts();
+    }
+
+    public function hasValidDateRange(): bool
+    {
+        return ! empty($this->active_from) && ! empty($this->active_to);
+    }
+
+    public function isWithinActivePeriod(): bool
+    {
+        return now()->between($this->active_from, $this->active_to);
+    }
+
+    public function hasActiveConflicts(): bool
+    {
+        return Schedule::where('active', true)->exists();
     }
 }
