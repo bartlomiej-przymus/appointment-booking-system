@@ -59,9 +59,13 @@ class Schedule extends Model
 
     public function isActive(): bool
     {
-        return (
-            ! empty($this->active_from) && ! empty($this->active_to)
-            && now()->between($this->active_from, $this->active_to)
-        ) || $this->active;
+        if ($this->active) {
+            return true;
+        } elseif (! empty($this->active_from) && ! empty($this->active_to)
+            && now()->between($this->active_from, $this->active_to)) {
+            return true;
+        }
+
+        return false;
     }
 }

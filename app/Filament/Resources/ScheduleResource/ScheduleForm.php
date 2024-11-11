@@ -4,7 +4,7 @@ namespace App\Filament\Resources\ScheduleResource;
 
 use App\Enums\DayType;
 use App\Enums\ScheduleType;
-use App\Rules\CanSetActive;
+use App\Rules\CheckScheduleOverlap;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
@@ -57,24 +57,24 @@ class ScheduleForm
                     Section::make('Schedule Settings')
                         ->schema([
                             Toggle::make('active')
-                                ->hidden(fn (Get $get) => ! empty($get('active_from'))
-                                    && ! empty($get('active_to')))
+                                ->hint('Toggling this makes this Schedule active by default.')
                                 ->inline(false)
-                                ->rules([
-                                    new CanSetActive,
-                                ])
                                 ->live(),
                             DatePicker::make('active_from')
                                 ->hidden(fn (Get $get) => $get('active'))
                                 ->native(false)
                                 ->before('active_to')
-                                ->required(fn (Get $get) => $get('type') === ScheduleType::Custom->value)
+                                ->required(fn (Get $get) => ! $get('active'))
                                 ->live(),
                             DatePicker::make('active_to')
                                 ->hidden(fn (Get $get) => $get('active'))
                                 ->native(false)
                                 ->after('active_from')
-                                ->required(fn (Get $get) => $get('type') === ScheduleType::Custom->value)
+                                ->required(fn (Get $get) => ! $get('active'))
+                                ->rules([
+                                    fn (Get $get) => (new CheckScheduleOverlap)
+                                        ->forActiveFromDate($get('active_from')),
+                                ])
                                 ->live(),
                         ]),
                     Section::make('Availability Settings')
