@@ -30,7 +30,7 @@ class CreateAvailability extends CreateRecord
                 return [
                     'start_time' => $timeSlot,
                     'end_time' => Carbon::createFromTimeString($timeSlot)
-                        ->addMinutes($this->data['appointment_duration'])
+                        ->addMinutes((int) $this->data['appointment_duration'])
                         ->toTimeString('minute'),
                 ];
             });
