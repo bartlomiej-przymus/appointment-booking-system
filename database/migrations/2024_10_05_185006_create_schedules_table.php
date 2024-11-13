@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\ScheduleType;
+use App\Models\Availability;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Availability::class)->nullable();
             $table->string('name');
             $table->enum('type', ScheduleType::values())->nullable();
             $table->string('excluded_days')->nullable();

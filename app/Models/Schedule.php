@@ -43,13 +43,9 @@ class Schedule extends Model
             ->withTimestamps();
     }
 
-    public function availabilities(): BelongsToMany
+    public function availability(): BelongsTo
     {
-        return $this->belongsToMany(
-            Availability::class,
-            AvailabilitySchedule::class
-        )->using(AvailabilitySchedule::class)
-            ->withTimestamps();
+        return $this->belongsTo(Availability::class);
     }
 
     public function user(): BelongsTo

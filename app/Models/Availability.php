@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Availability extends Model
 {
@@ -25,22 +26,14 @@ class Availability extends Model
         'end_time' => 'datetime',
     ];
 
-    public function days(): BelongsToMany
+    public function days(): HasMany
     {
-        return $this->belongsToMany(
-            Day::class,
-            AvailabilityDay::class
-        )->using(AvailabilityDay::class)
-            ->withTimestamps();
+        return $this->hasMany(Day::class);
     }
 
-    public function schedules(): BelongsToMany
+    public function schedules(): HasMany
     {
-        return $this->belongsToMany(
-            Schedule::class,
-            AvailabilitySchedule::class
-        )->using(AvailabilitySchedule::class)
-            ->withTimestamps();
+        return $this->hasMany(Schedule::class);
     }
 
     public function slots(): BelongsToMany
