@@ -79,16 +79,17 @@ class DaysRelationManager extends RelationManager
             ->recordTitleAttribute('type')
             ->columns([
                 TextColumn::make('type')
+                    ->label('Day')
                     ->visible($ownerRecord->type->is(ScheduleType::Weekly)),
+                TextColumn::make('date')
+                    ->visible($ownerRecord->type->is(ScheduleType::Custom))
+                    ->date('l, d F Y'),
                 TextColumn::make('availability.slots')
                     ->label('Available Time Slots')
                     ->formatStateUsing(
                         fn ($state) => $state->start_time->toTimeString('minute')
                     )
                     ->badge(),
-                TextColumn::make('date')
-                    ->visible($ownerRecord->type->is(ScheduleType::Custom))
-                    ->date('l, d F Y'),
             ])
             ->filters([
                 //
