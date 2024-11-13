@@ -19,7 +19,7 @@ class AvailabilityResource extends Resource
 {
     protected static ?string $model = Availability::class;
 
-    protected static ?string $modelLabel = 'Availability Table';
+    protected static ?string $modelLabel = 'Availability Timetable';
 
     protected static ?string $recordTitleAttribute = 'Availability Timetable';
 
@@ -27,7 +27,7 @@ class AvailabilityResource extends Resource
 
     protected static ?string $navigationGroup = 'Schedule Settings';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -39,6 +39,12 @@ class AvailabilityResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name'),
+                TextColumn::make('slots')
+                    ->label('Available Time Slots')
+                    ->formatStateUsing(
+                        fn ($state) => $state->start_time->toTimeString('minute')
+                    )
+                    ->badge()
             ])
             ->filters([
                 //
