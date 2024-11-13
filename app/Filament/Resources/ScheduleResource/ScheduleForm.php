@@ -80,10 +80,10 @@ class ScheduleForm
                     Section::make('Availability Settings')
                         ->visible(fn (Get $get) => $get('type') === ScheduleType::Daily->value)
                         ->schema([
-                            Select::make('availabilities')
+                            Select::make('availability')
                                 ->label('Availability Table')
                                 ->required()
-                                ->relationship('availabilities', 'name')
+                                ->relationship('availability', 'name')
                                 ->searchable(false)
                                 ->preload(),
                         ]),

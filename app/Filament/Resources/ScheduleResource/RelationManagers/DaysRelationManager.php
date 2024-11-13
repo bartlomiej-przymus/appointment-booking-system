@@ -48,20 +48,20 @@ class DaysRelationManager extends RelationManager
                     ->minDate($ownerRecord->active_from)
                     ->maxDate($ownerRecord->active_to)
                     ->format('d-m-Y'),
-                Select::make('availabilities')
+                Select::make('availability')
                     ->label('Availability Table')
                     ->required()
-                    ->relationship('availabilities', 'name')
+                    ->relationship('availability', 'name')
                     ->searchable(false)
                     ->preload()
                     ->default([])
                     ->live(),
                 Placeholder::make('Availability Slots')
-                    ->hidden(fn (Get $get) => empty($get('availabilities')))
+                    ->hidden(fn (Get $get) => empty($get('availability')))
                     ->content(function (Get $get) {
-                        $availabilityTable = Availability::where('id', implode($get('availabilities')))->first();
+                        $availabilityTable = Availability::where('id', $get('availability'))->first();
 
-                        $slots = $availabilityTable->slots
+                        $slots = $availabilityTable?->slots
                             ->pluck('start_time')
                             ->map(fn ($time) => $time->toTimeString('minute'))
                             ->toArray();
@@ -80,6 +80,12 @@ class DaysRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('type')
                     ->visible($ownerRecord->type->is(ScheduleType::Weekly)),
+                TextColumn::make('availability.slots')
+                    ->label('Available Time Slots')
+                    ->formatStateUsing(
+                        fn ($state) => $state->start_time->toTimeString('minute')
+                    )
+                    ->badge(),
                 TextColumn::make('date')
                     ->visible($ownerRecord->type->is(ScheduleType::Custom))
                     ->date('l, d F Y'),
