@@ -6,7 +6,6 @@ use App\Filament\Resources\ScheduleResource;
 use App\Models\Schedule;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Database\Eloquent\Model;
 
 class EditSchedule extends EditRecord
 {

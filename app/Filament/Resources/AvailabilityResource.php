@@ -44,7 +44,7 @@ class AvailabilityResource extends Resource
                     ->formatStateUsing(
                         fn ($state) => $state->start_time->toTimeString('minute')
                     )
-                    ->badge()
+                    ->badge(),
             ])
             ->filters([
                 //
