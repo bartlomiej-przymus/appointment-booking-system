@@ -27,6 +27,8 @@ class ScheduleFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'active' => true,
+            'active_from' => null,
+            'active_to' => null,
         ]);
     }
 }
