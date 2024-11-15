@@ -19,15 +19,15 @@ it('can check if current date is within schedule active date range', function ()
         ->and($inactiveSchedule->isWithinActivePeriod())->toBeFalse();
 });
 
-it('can check if active schedules exist', function () {
+it('can check if schedules set to active exist', function () {
     $activeSchedule = Schedule::factory()->active()->create();
     $newSchedule = Schedule::factory()->create();
 
-    expect($newSchedule->hasActiveSchedules())->toBeTrue();
+    expect($newSchedule->hasSchedulesSetToActive())->toBeTrue();
 
     $activeSchedule->update(['active' => false]);
 
-    expect($newSchedule->hasActiveSchedules())->toBeFalse();
+    expect($newSchedule->hasSchedulesSetToActive())->toBeFalse();
 });
 
 it('can check if it has valid date range', function () {
