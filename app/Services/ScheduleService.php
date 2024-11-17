@@ -169,7 +169,8 @@ class ScheduleService
     protected function getBookedAppointmentsForMonth(Carbon $date): Collection
     {
         $dateRange = $this->calculateDateRange($date);
-        $cacheKey = self::CACHE_PREFIX."booked_appointments_{$date->format('Y_m')}";
+        $dateString = Str::lower($date->format('F_Y'));
+        $cacheKey = self::CACHE_PREFIX . 'booked_appointments_' . $dateString;
 
         return Cache::remember(
             $cacheKey,
@@ -234,7 +235,8 @@ class ScheduleService
          * We are adding 3 days to the date from which
          * available slots are bookable to give some
          * needed preparation time
-         **/
+         */
+
         $startDate = Carbon::today()
             ->startOfDay()
             ->addDays(3);
