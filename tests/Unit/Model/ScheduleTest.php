@@ -31,10 +31,19 @@ it('can check if schedules set to active exist', function () {
 });
 
 it('can check if it has valid date range', function () {
-    $schedule = Schedule::factory()->create(['active_from' => null, 'active_to' => null]);
+    $schedule = Schedule::factory()
+        ->create([
+            'active_from' => null,
+            'active_to' => null,
+        ]);
+
     expect($schedule->hasValidDateRange())->toBeFalse();
 
-    $schedule->update(['active_from' => now()->subDay(), 'active_to' => now()->addDay()]);
+    $schedule->update([
+        'active_from' => now()->subDay(),
+        'active_to' => now()->addDay(),
+    ]);
+
     expect($schedule->hasValidDateRange())->toBeTrue();
 });
 
