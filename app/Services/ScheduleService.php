@@ -170,7 +170,7 @@ class ScheduleService
     {
         $dateRange = $this->calculateDateRange($date);
         $dateString = Str::lower($date->format('F_Y'));
-        $cacheKey = self::CACHE_PREFIX . 'booked_appointments_' . $dateString;
+        $cacheKey = self::CACHE_PREFIX.'booked_appointments_'.$dateString;
 
         return Cache::remember(
             $cacheKey,
@@ -236,7 +236,6 @@ class ScheduleService
          * available slots are bookable to give some
          * needed preparation time
          */
-
         $startDate = Carbon::today()
             ->startOfDay()
             ->addDays(3);

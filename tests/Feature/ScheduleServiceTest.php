@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\DayType;
 use App\Enums\ScheduleType;
 use App\Models\Availability;
 use App\Models\Schedule;
@@ -82,7 +81,7 @@ it('returns null when no active date range schedule is currently set', function 
         'active_to' => now()->addWeek(),
     ]);
 
-    expect((new ScheduleService())
+    expect((new ScheduleService)
         ->getActiveSchedule())
         ->toBeNull();
 });
@@ -109,7 +108,6 @@ it('returns available dates and time slots for current month when schedule daily
      * First active day should be 4th as system
      * adds 2 days of buffer ahead.
      */
-
     $availability = Availability::factory()->create();
 
     $slots = Slot::factory()->createMany(
@@ -130,11 +128,11 @@ it('returns available dates and time slots for current month when schedule daily
         ->active()
         ->for($availability)
         ->create([
-        'type' => ScheduleType::Daily->value,
-        'excluded_days' => [],
-    ]);
+            'type' => ScheduleType::Daily->value,
+            'excluded_days' => [],
+        ]);
 
-    $availableDatesForMonth = (new ScheduleService())
+    $availableDatesForMonth = (new ScheduleService)
         ->getAvailableDatesForMonth(now());
 
     expect($availableDatesForMonth->isEmpty())
