@@ -6,7 +6,6 @@ use App\Models\Availability;
 use App\Models\Schedule;
 use App\Models\Slot;
 use App\Services\ScheduleService;
-use App\Services\ScheduleServiceLlm;
 
 it('can retrieve schedule set to active', function () {
     Schedule::factory()->count(5)->create([
