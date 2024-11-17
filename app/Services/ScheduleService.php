@@ -264,9 +264,9 @@ class ScheduleService
                     ->startOfDay()
                     ->diffInDays(
                         $startDate->startOfDay(),
-                        true)
-            )
-            ->mapWithKeys(
+                        true
+                    )
+            )->mapWithKeys(
                 function ($dayOffset) use (
                     $startDate,
                     $processor
