@@ -208,8 +208,6 @@ class ScheduleService
         Carbon $endDate,
         callable $processor
     ): Collection {
-//        dd($startDate->toDateTimeString(), $endDate->toDateTimeString());
-//        dd($endDate->startOfDay()->diffInDays($startDate->startOfDay()), true);
         return collect()
             ->range(0, $endDate->startOfDay()->diffInDays($startDate->startOfDay(), true))
             ->mapWithKeys(function ($dayOffset) use ($startDate, $processor) {
