@@ -93,6 +93,7 @@ it('returns available dates and time slots for current month when schedule daily
 
     /**
      * Current date is set for November 2024
+     * (time of writing this test)
      * Two Availability Time Slots are created
      * Type daily Schedule is created set to be
      * active.
@@ -125,10 +126,12 @@ it('returns available dates and time slots for current month when schedule daily
 
     $availability->slots()->attach($slots);
 
-    Schedule::factory()->active()->create([
+    Schedule::factory()
+        ->active()
+        ->for($availability)
+        ->create([
         'type' => ScheduleType::Daily->value,
         'excluded_days' => [],
-        'availability_id' => $availability->getKey(),
     ]);
 
     $availableDatesForMonth = (new ScheduleService())
@@ -140,6 +143,6 @@ it('returns available dates and time slots for current month when schedule daily
         ->toBeCollection()
         ->toHaveCount(27)
         ->each->toContain('11:00', '12:00')
-        ->and($availableDatesForMonth->offsetExists('2024-11-04'))
-        ->toBeTrue();
+        ->and($availableDatesForMonth->keys()->first())
+        ->toBe('2024-11-04');
 });
