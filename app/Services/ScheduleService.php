@@ -176,7 +176,10 @@ class ScheduleService
             self::CACHE_TTL,
             function () use ($dateRange) {
                 return Appointment::query()
-                    ->whereBetween('date', [$dateRange->values()])
+                    ->whereBetween(
+                        'date',
+                        [$dateRange->values()]
+                    )
                     ->whereIn('status', [
                         AppointmentStatus::Confirmed->value,
                         AppointmentStatus::Rescheduled->value,
