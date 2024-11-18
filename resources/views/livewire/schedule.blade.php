@@ -1,6 +1,7 @@
 <div class="font-sans">
-    @dump($calendar)
-    <div class="mx-auto w-fit">
+{{--    @dump($calendar)--}}
+{{--    @dump($availableDates)--}}
+    <div class="mx-auto w-fit mt-20">
         <div class="flex">
             <button class="py-4 border border-gray-400 w-1/4" wire:click="prevMonth">Prev Month</button>
             <div class="font-light text-l text-center border border-gray-100 w-1/2">
@@ -34,6 +35,7 @@
                 </div>
                 @foreach($calendar['weeks'] as $week)
                     @foreach($week as $day)
+{{--                        @dump($day['date']->toDateString())--}}
 {{--                        <livewire:day :key="$loop->parent->index . $loop->index" :day="$day" />--}}
                         <x-calendar.day
                             within-month="{{$day['withinMonth']}}"
