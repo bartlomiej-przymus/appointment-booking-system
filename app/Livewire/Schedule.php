@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Services\ScheduleService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class Schedule extends Component
@@ -12,25 +14,39 @@ class Schedule extends Component
     public CarbonImmutable $date;
 
     public $calendar;
+    #[Locked]
+    public $availableDates;
 
     public function mount(): void
     {
-        $this->date = CarbonImmutable::create(Carbon::now()->year, Carbon::now()->month);
-
+        $this->date = CarbonImmutable::create(
+            Carbon::now()->year,
+            Carbon::now()->month
+        );
+        $this->availableDates = (new ScheduleService)
+            ->getAvailableDatesForMonth(
+                Carbon::createFromImmutable($this->date)
+            );
         $this->calendar = $this->generateCalendarMonth($this->date);
     }
 
     public function nextMonth(): void
     {
         $this->date = $this->date->addMonth();
-
+        $this->availableDates = (new ScheduleService)
+            ->getAvailableDatesForMonth(
+                Carbon::createFromImmutable($this->date)
+            );
         $this->calendar = $this->generateCalendarMonth($this->date);
     }
 
     public function prevMonth(): void
     {
         $this->date = $this->date->subMonth();
-
+        $this->availableDates = (new ScheduleService)
+            ->getAvailableDatesForMonth(
+                Carbon::createFromImmutable($this->date)
+            );
         $this->calendar = $this->generateCalendarMonth($this->date);
     }
 
