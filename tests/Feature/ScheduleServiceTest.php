@@ -202,7 +202,7 @@ it('returns available dates and time slots for current month when schedule is se
         [
             'start_time' => '16:00',
             'end_time' => '16:45',
-        ]
+        ],
     ]);
 
     $availabilitySunday->slots()->attach($slotsSunday);
@@ -365,7 +365,7 @@ it('returns available dates and time slots for current month when schedule is se
     $days = Day::all();
 
     $days->each(function ($day, $index) use ($availabilities) {
-            $day->availability()->associate($availabilities[$index])->save();
+        $day->availability()->associate($availabilities[$index])->save();
     });
 
     $schedule->days()->attach($days);

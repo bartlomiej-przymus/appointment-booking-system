@@ -14,6 +14,7 @@ class Schedule extends Component
     public CarbonImmutable $date;
 
     public $calendar;
+
     #[Locked]
     public $availableDates;
 
