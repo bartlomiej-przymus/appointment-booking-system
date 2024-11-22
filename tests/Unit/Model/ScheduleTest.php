@@ -21,7 +21,9 @@ it('can check if current date is within schedule active date range', function ()
 
 it('can check if schedules set to active exist', function () {
     $activeSchedule = Schedule::factory()->active()->create();
-    $newSchedule = Schedule::factory()->create();
+    $newSchedule = Schedule::factory()->create([
+        'active' => false,
+    ]);
 
     expect($newSchedule->hasSchedulesSetToActive())->toBeTrue();
 
