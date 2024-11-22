@@ -134,7 +134,7 @@ class ScheduleService
         Schedule $activeSchedule
     ): Collection {
         $bookedAppointments = $this->getBookedAppointmentsForMonth($date);
-        $dateRange = $this->calculateDateRange($date);
+        $dateRange = $this->calculateDateRange($date, false);
 
         $startDate = max(
             $dateRange->get('start'),
@@ -168,7 +168,7 @@ class ScheduleService
 
     protected function getBookedAppointmentsForMonth(Carbon $date): Collection
     {
-        $dateRange = $this->calculateDateRange($date);
+        $dateRange = $this->calculateDateRange($date, false);
         $dateString = Str::lower($date->format('F_Y'));
         $cacheKey = self::CACHE_PREFIX.'booked_appointments_'.$dateString;
 
@@ -229,16 +229,20 @@ class ScheduleService
             : $availableSlotsForDay;
     }
 
-    protected function calculateDateRange(Carbon $date): Collection
+    protected function calculateDateRange(Carbon $date, bool $addDays = true): Collection
     {
         /**
          * We are adding 3 days to the date from which
          * available slots are bookable to give some
          * needed preparation time
          */
-        $startDate = Carbon::today()
-            ->startOfDay()
-            ->addDays(3);
+        $startDate = $addDays
+            ? Carbon::today()
+                ->startOfDay()
+                ->addDays(3)
+            : Carbon::today()
+                ->startOfDay();
+
         $endDate = $date->copy()->endOfMonth();
 
         if ($date->startOfMonth()->gt($startDate)) {
