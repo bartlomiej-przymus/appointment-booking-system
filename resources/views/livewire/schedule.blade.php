@@ -1,6 +1,4 @@
 <div class="font-sans">
-{{--    @dump($calendar)--}}
-{{--    @dump($availableDates)--}}
     <div class="mx-auto w-fit mt-20">
         <div class="flex">
             <button class="py-4 border border-gray-400 w-1/4" wire:click="prevMonth">Prev Month</button>
@@ -10,7 +8,7 @@
             </div>
             <button class="py-4 border border-gray-400 w-1/4" wire:click="nextMonth">Next Month</button>
         </div>
-        <div class="mt-1 font-sans text-lg grid">
+        <div class="mt-1 font-sans text-lg flex">
             <div class="grid grid-cols-7 w-fit gap-1 font-light">
                 <div class="h-16 flex justify-center items-center aspect-[1/1]">
                     Mon
@@ -33,25 +31,43 @@
                 <div class="h-16 flex justify-center items-center aspect-[1/1] text-red-600">
                     Sun
                 </div>
+
                 @foreach($calendar['weeks'] as $week)
                     @foreach($week as $day)
-{{--                        @dump($day['date']->toDateString())--}}
-{{--                        <livewire:day :key="$loop->parent->index . $loop->index" :day="$day" />--}}
-                        <x-calendar.day
-                            within-month="{{$day['withinMonth']}}"
-                            weekend="{{$day['weekend']}}"
-                            today="{{$day['today']}}"
-                            available="{{$day['available']}}"
-                        >
-                            {{ $day['day'] }}
-                        </x-calendar.day>
+                        @if($day['available'])
+                            <x-calendar.day
+                                wire:click="showSlots('{{$day['date']}}')"
+                                within-month="{{$day['withinMonth']}}"
+                                weekend="{{$day['weekend']}}"
+                                today="{{$day['today']}}"
+                                available="{{$day['available']}}"
+                                selected="{{ $selectedDate === $day['date'] }}"
+                            >
+                                {{ $day['day'] }}
+                            </x-calendar.day>
+                        @else
+                            <x-calendar.day
+                                within-month="{{$day['withinMonth']}}"
+                                weekend="{{$day['weekend']}}"
+                                today="{{$day['today']}}"
+                                disabled
+                            >
+                                {{ $day['day'] }}
+                            </x-calendar.day>
+                        @endif
                     @endforeach
                 @endforeach
             </div>
-            {{--        <div class="grid grid-cols-1 align-top w-fit">--}}
-            {{--            <div class="font-light h-16 flex justify-center items-center border border-slate-800 aspect-[2/1] hover:bg-slate-100">Time</div>--}}
-            {{--            <div class="font-light h-16 flex justify-center items-center border border-slate-800 aspect-[2/1] hover:bg-slate-100">8:00</div>--}}
-            {{--        </div>--}}
+            @if($showTimeSlots)
+            <div class="grid grid-cols-1 w-fit gap-1 content-start ml-1">
+                <div class="font-light h-16 flex justify-center items-center aspect-[2/1">Available Time</div>
+                @foreach($slots as $slot)
+                <div class="font-light h-16 flex justify-center items-center border border-gray-200 aspect-[2/1] hover:bg-gray-100">
+                    {{$slot}}
+                </div>
+                @endforeach
+            </div>
+            @endif
         </div>
     </div>
 </div>
