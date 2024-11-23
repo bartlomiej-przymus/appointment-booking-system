@@ -94,7 +94,7 @@ it('returns available dates and time slots for current month when schedule is se
 
     /**
      * Current date is set for November 2024
-     * 
+     *
      * Two Availability Time Slots are created
      * Type daily Schedule is created set to be
      * active.
@@ -153,7 +153,7 @@ it('returns available dates and time slots for current month when schedule is se
 
     /**
      * Current date is set for 1st of November 2024
-     * 
+     *
      * Four Availability Time Slots are created
      * Two for weekdays and 2 for Sundays
      * Type weekly Schedule is created and set to be
@@ -272,7 +272,7 @@ it('returns available dates and time slots for current month when schedule is se
 
     /**
      * Current date is set for 1st of November 2024
-     * 
+     *
      *
      * Four Availability Time Slots are created
      * They are assigned to 4 predefined dates in a month
