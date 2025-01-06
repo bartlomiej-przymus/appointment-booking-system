@@ -62,7 +62,8 @@ Password: `password`
 
 ### Features roadmap
 
-- [ ] Livewire calendar component with available days and time slots that users can choose and book.
+- [X] Livewire calendar component with available days and time slots that users can choose and book.
+(calendar component implemented booking functionality remains to be done)
 - [ ] User account section to where users can manage their upcoming appontments providing them with window to reschedule / cancel appointments.
-- [ ] Admin Panel that gives admin users ability to manage Time schedules, availability slots and see upcoming appointments.
+- [X] Admin Panel that gives admin users ability to manage Time schedules, availability slots and see upcoming appointments.
 - [ ] Email notification composer for various stages of Appointment Booking.
