@@ -5,9 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages\CreateOrder;
 use App\Filament\Resources\OrderResource\Pages\EditOrder;
 use App\Filament\Resources\OrderResource\Pages\ListOrders;
-//use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
-//use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\CreateAction;
@@ -20,19 +18,9 @@ use Filament\Tables\Table;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
-
-    // disabled for now
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
-    //    public static function form(Form $form): Form
-    //    {
-    //        return $form
-    //            ->schema([
-    //                //
-    //            ]);
-    //    }
 
     public static function table(Table $table): Table
     {
@@ -48,9 +36,6 @@ class OrderResource extends Resource
                 TextColumn::make('created_at')
                     ->date(),
             ])
-            ->filters([
-                //
-            ])
             ->headerActions([
                 CreateAction::make(),
             ])
@@ -63,13 +48,6 @@ class OrderResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

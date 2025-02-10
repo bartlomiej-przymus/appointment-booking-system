@@ -10,12 +10,12 @@ enum AppointmentStatus: string implements HasColor, HasLabel
 {
     use EnumTrait;
 
-    case Pending = 'pending'; //user started booking haven't paid yet
+    case Pending = 'pending'; // user started booking haven't paid yet
     case Paid = 'paid'; // user paid for appointment needs to confirm in email time and date
-    case Cancelled = 'cancelled'; //appointment has not been confirmed and it got cancelled
-    case Confirmed = 'confirmed'; //appointment has been confirmed by user
-    case Completed = 'completed'; //appointment took place (send feedback form if enabled)
-    case Rescheduled = 'rescheduled'; //appointment has been rescheduled
+    case Cancelled = 'cancelled'; // appointment has not been confirmed and it got cancelled
+    case Confirmed = 'confirmed'; // appointment has been confirmed by user
+    case Completed = 'completed'; // appointment took place (send feedback form if enabled)
+    case Rescheduled = 'rescheduled'; // appointment has been rescheduled
 
     public function getLabel(): ?string
     {

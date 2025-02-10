@@ -6,7 +6,6 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\User;
-//use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -22,14 +21,6 @@ class UserResource extends Resource
 
     protected static ?string $navigationGroup = 'Administration';
 
-    //    public static function form(Form $form): Form
-    //    {
-    //        return $form
-    //            ->schema([
-    //                //
-    //            ]);
-    //    }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -37,9 +28,6 @@ class UserResource extends Resource
                 TextColumn::make('name'),
                 TextColumn::make('email'),
                 TextColumn::make('created_at')->dateTime(),
-            ])
-            ->filters([
-                //
             ])
             ->actions([
                 EditAction::make(),
@@ -49,13 +37,6 @@ class UserResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

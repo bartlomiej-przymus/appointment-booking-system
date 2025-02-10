@@ -91,9 +91,6 @@ class DaysRelationManager extends RelationManager
                     )
                     ->badge(),
             ])
-            ->filters([
-                //
-            ])
             ->headerActions([
                 CreateAction::make()
                     ->createAnother(false),

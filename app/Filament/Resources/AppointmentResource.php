@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-//use App\Filament\Resources\AppointmentResource\RelationManagers;
 use App\Filament\Resources\AppointmentResource\Pages\EditAppointment;
 use App\Filament\Resources\AppointmentResource\Pages\ListAppointments;
 use App\Models\Appointment;
@@ -16,8 +15,6 @@ use Filament\Tables\Table;
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
-
-    // disabled for now
     protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -36,9 +33,6 @@ class AppointmentResource extends Resource
                     ->numeric()
                     ->suffix('min'),
             ])
-            ->filters([
-                //
-            ])
             ->actions([
                 EditAction::make(),
             ])
@@ -47,13 +41,6 @@ class AppointmentResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
