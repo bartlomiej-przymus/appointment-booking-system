@@ -8,17 +8,17 @@
 ])
 
 <button {{ $attributes }} @class([
-    'font-light', 'h-16', 'flex', 'justify-center', 'items-center', 'aspect-[1/1]',
+    'font-light', 'h-16', 'flex', 'justify-center', 'items-center', 'aspect-[1/1]', 'rounded-full',
     'cursor-default' => ! $available,
     'border' => ! $header,
-    'border-accentColor' => $today,
     'border-gray-200' => ! $today,
-    'hover:bg-green-200' => $withinMonth && $available,
+    'border-accentColor' => $today,
+    'hover:bg-red-200' => $withinMonth && $available,
     'text-gray-300' => ! $withinMonth,
     'text-red-600' => $weekend && $withinMonth,
     'text-red-300' => $weekend && ! $withinMonth,
-    'bg-green-100' => $available,
-    'bg-green-500' => $selected,
+    'bg-red-100' => $available,
+    'bg-red-500' => $selected,
 ])>
     {{ $slot }}
 </button>
