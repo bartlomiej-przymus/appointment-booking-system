@@ -4,11 +4,12 @@
 
 ### Description
 
-I was looking at different scheduling and online appointment booking systems and I did not like them, so I decided to build one myself.
+I needed appointment booking system for my website. I was looking at range of different scheduling and online appointment booking systems.
+I didn't like any of them, so I decided to build one myself with just feature I need and want.
 
 ### Be Warned
 
-This software is intended for my personal use only. Its purpose is to provide me with the opportunity to build apps, that interest me, in my own way, while using technologies I love, learning and having fun. Besides I need a portfolio so there is that as well I guess :).<br> It may contain bugs and other critters it may contain unfinished features - use it at your own risk!
+This software is intended for my personal use only. It may contain bugs and other critters it may contain unfinished features - use it at your own risk!
 
 ### Technologies Used
 
