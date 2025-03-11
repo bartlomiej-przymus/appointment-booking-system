@@ -20,7 +20,7 @@ class EditSchedule extends EditRecord
 
     public function beforeSave(): void
     {
-        if ($this->data['active']) {
+        if ($this->data['active'] && ! $this->record->isActive()) {
             Schedule::where('active', true)
                 ->update(['active' => false]);
         }
