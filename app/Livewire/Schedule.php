@@ -2,10 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Models\Schedule as ScheduleModel;
 use App\Services\ScheduleService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -13,24 +15,31 @@ class Schedule extends Component
 {
     public CarbonImmutable $date;
 
-    public $calendar;
+    public array $calendar = [];
 
     public bool $showTimeSlots = false;
 
-    public $slots;
+    public Collection $slots;
 
-    public $selectedDate = null;
+    public string $selectedDate = '';
 
     #[Locked]
-    public $availableDates;
+    public Collection $availableDates;
+
+    public ?ScheduleModel $schedule;
+
+    public function __construct(private $scheduleService = new ScheduleService) {}
 
     public function mount(): void
     {
+        $this->schedule = $this->scheduleService
+            ->getActiveSchedule();
+
         $this->date = CarbonImmutable::create(
             Carbon::now()->year,
             Carbon::now()->month
         );
-        $this->availableDates = (new ScheduleService)
+        $this->availableDates = $this->scheduleService
             ->getAvailableDatesForMonth(
                 Carbon::createFromImmutable($this->date)
             );
