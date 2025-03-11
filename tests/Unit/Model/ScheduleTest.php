@@ -63,7 +63,8 @@ it('can check if schedule is active', function () {
 
 it('can show schedule as inactive if there is other set to active', function () {
     $activeSchedule = Schedule::factory()
-        ->active()->create([
+        ->active()
+        ->create([
             'active_from' => null,
             'active_to' => null,
         ]);
