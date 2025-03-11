@@ -8,7 +8,7 @@
 ])
 
 <button {{ $attributes }} @class([
-    'font-light', 'h-16', 'flex', 'justify-center', 'items-center', 'aspect-[1/1]', 'rounded-full',
+    'font-light', 'h-14', 'flex', 'justify-center', 'items-center', 'aspect-[1/1]', 'rounded-full',
     'cursor-default' => ! $available,
     'border' => ! $header,
     'border-gray-200' => ! $today,
