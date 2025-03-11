@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\DayType;
 use App\Enums\ScheduleType;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -20,6 +21,7 @@ class ScheduleFactory extends Factory
             'active' => fake()->boolean(),
             'active_from' => $activeFrom,
             'active_to' => fake()->dateTimeBetween($activeFrom, '+1 month'),
+            'user_id' => User::factory(),
         ];
     }
 

@@ -39,6 +39,8 @@ class ScheduleResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name'),
+                TextColumn::make('owner')
+                    ->state(fn ($record) => $record->user->name),
                 TextColumn::make('type')
                     ->badge(),
                 TextColumn::make('excluded_days')
@@ -50,8 +52,10 @@ class ScheduleResource extends Resource
                     ->state(fn ($record) => $record->isActive())
                     ->boolean(),
                 TextColumn::make('active_from')
+                    ->toggleable()
                     ->date(),
                 TextColumn::make('active_to')
+                    ->toggleable()
                     ->date(),
                 TextColumn::make('created_at')
                     ->label('Created')
