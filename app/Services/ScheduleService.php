@@ -19,22 +19,19 @@ class ScheduleService
 
     public function getActiveSchedule(): ?Schedule
     {
-        return Cache::remember(
-            self::CACHE_PREFIX.'active_schedule',
-            self::CACHE_TTL,
-            function () {
-                return Schedule::with(
-                    'availability.slots',
-                    'days.availability.slots'
-                )->where('active', true)
-                    ->first()
-                    ?? Schedule::with(
-                        'availability.slots',
-                        'days.availability.slots'
-                    )->where('active_from', '<=', now())
-                        ->where('active_to', '>=', now())
-                        ->first();
-            });
+        return Schedule::with(
+            'user',
+            'availability.slots',
+            'days.availability.slots'
+        )->where('active', true)
+            ->first()
+            ?? Schedule::with(
+                'user',
+                'availability.slots',
+                'days.availability.slots'
+            )->where('active_from', '<=', now())
+                ->where('active_to', '>=', now())
+                ->first();
     }
 
     public function getAvailableDatesForMonth(Carbon $date): Collection
