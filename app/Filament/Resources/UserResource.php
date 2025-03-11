@@ -5,7 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\UserForm;
 use App\Models\User;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -20,6 +22,11 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationGroup = 'Administration';
+
+    public static function form(Form $form): Form
+    {
+        return UserForm::make($form);
+    }
 
     public static function table(Table $table): Table
     {
