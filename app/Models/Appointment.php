@@ -15,14 +15,14 @@ class Appointment extends Model
 
     protected $fillable = [
         'date',
-        'time',
+        'time_slot',
         'status',
-        'duration',
+        'duration', // int in whole minutes
     ];
 
     protected $casts = [
         'date' => 'datetime',
-        'time' => 'datetime:H:i',
+        'time_slot' => 'datetime:H:i',
         'status' => AppointmentStatus::class,
     ];
 
@@ -39,5 +39,23 @@ class Appointment extends Model
     public function slots(): BelongsTo
     {
         return $this->belongsTo(Slot::class);
+    }
+
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(Schedule::class);
+    }
+
+    public function isAvailable(string $date, string $timeSlot, Schedule $schedule): bool
+    {
+        return ! $this->where('date', $date)
+            ->where('time_slot', $timeSlot)
+            ->where('schedule_id', $schedule->getKey())
+            ->whereNotIn('status', [
+                AppointmentStatus::Pending->value,
+                AppointmentStatus::Cancelled->value,
+                AppointmentStatus::Rescheduled->value,
+            ])
+            ->exists();
     }
 }
