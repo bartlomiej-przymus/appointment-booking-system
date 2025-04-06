@@ -6,17 +6,16 @@ use App\Enums\AppointmentStatus;
 use App\Enums\ScheduleType;
 use App\Models\Appointment;
 use App\Models\Schedule;
+use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ScheduleService
 {
-    private const CACHE_PREFIX = 'schedule_service_';
-
-    private const CACHE_TTL = 3600;
-
     public function getActiveSchedule(): ?Schedule
     {
         return Schedule::with(
@@ -166,34 +165,27 @@ class ScheduleService
     protected function getBookedAppointmentsForMonth(Carbon $date): Collection
     {
         $dateRange = $this->calculateDateRange($date, false);
-        $dateString = Str::lower($date->format('F_Y'));
-        $cacheKey = self::CACHE_PREFIX.'booked_appointments_'.$dateString;
 
-        return Cache::remember(
-            $cacheKey,
-            self::CACHE_TTL,
-            function () use ($dateRange) {
-                return Appointment::query()
-                    ->whereBetween(
-                        'date',
-                        [$dateRange->values()]
-                    )
-                    ->whereIn('status', [
-                        AppointmentStatus::Confirmed->value,
-                        AppointmentStatus::Rescheduled->value,
-                    ])
-                    ->orderBy('date')
-                    ->orderBy('time')
-                    ->get()
-                    ->groupBy('date')
-                    ->map(function (Collection $appointments) {
-                        return $appointments
-                            ->pluck('time')
-                            ->map(
-                                fn ($time) => Carbon::parse($time)
-                                    ->format('H:i')
-                            );
-                    });
+        return Appointment::query()
+            ->whereBetween(
+                'date',
+                [$dateRange->values()]
+            )
+            ->whereIn('status', [
+                AppointmentStatus::Confirmed->value,
+                AppointmentStatus::Rescheduled->value,
+            ])
+            ->orderBy('date')
+            ->orderBy('time_slot')
+            ->get()
+            ->groupBy('date')
+            ->map(function (Collection $appointments) {
+                return $appointments
+                    ->pluck('time_slot')
+                    ->map(
+                        fn ($time) => Carbon::parse($time)
+                            ->format('H:i')
+                    );
             });
     }
 
@@ -281,5 +273,38 @@ class ScheduleService
                     return $slots ? [$dateString => $slots] : [];
                 })
             ->filter();
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function bookAppointment(
+        string $date,
+        string $timeSlot,
+        User $user,
+        Schedule $schedule
+    ): Appointment {
+        return DB::transaction(function () use (
+            $date,
+            $timeSlot,
+            $user,
+            $schedule
+        ) {
+            $isAvailable = Appointment::isAvailable($date, $timeSlot, $schedule);
+
+            if (! $isAvailable) {
+                throw new Exception('Appointment slot is no longer available');
+            }
+
+            $duration = $schedule->availability()->duration;
+
+            return Appointment::create([
+                'user_id' => $user->getKey(),
+                'schedule_id' => $schedule->getKey(),
+                'date' => $date,
+                'time_slot' => $timeSlot,
+                'status' => AppointmentStatus::Pending->value,
+            ]);
+        });
     }
 }
