@@ -26,7 +26,7 @@ class AppointmentResource extends Resource
             ->columns([
                 TextColumn::make('date')
                     ->date('Y-m-d'),
-                TextColumn::make('time')
+                TextColumn::make('time_slot')
                     ->time('H:i'),
                 TextColumn::make('status')
                     ->badge(),
