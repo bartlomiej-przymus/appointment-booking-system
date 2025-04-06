@@ -2,6 +2,7 @@
 
 use App\Enums\AppointmentStatus;
 use App\Models\Order;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,12 +18,14 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-            $table->time('time');
+            $table->time('time_slot');
             $table->integer('duration');
             $table->enum('status', AppointmentStatus::values());
-            $table->foreignIdFor(Order::class);
+            $table->foreignIdFor(Order::class)->nullable();
             $table->foreignIdFor(User::class);
+            $table->foreignIdFor(Schedule::class);
             $table->timestamps();
+            $table->unique(['schedule_id', 'date', 'time_slot']);
         });
     }
 
