@@ -10,6 +10,13 @@ class CreateSchedule extends CreateRecord
 {
     protected static string $resource = ScheduleResource::class;
 
+    public function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = auth()->id();
+
+        return $data;
+    }
+
     public function beforeCreate(): void
     {
         if ($this->data['active']) {
