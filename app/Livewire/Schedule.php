@@ -2,12 +2,16 @@
 
 namespace App\Livewire;
 
+use App\Enums\ScheduleType;
+use App\Models\Appointment;
 use App\Models\Schedule as ScheduleModel;
 use App\Services\ScheduleService;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -81,7 +85,59 @@ class Schedule extends Component
         $this->showTimeSlots = true;
     }
 
-    public function bookSlot(string $date, string $timeSlot): void {}
+    public function bookSlot(string $date, string $timeSlot): void
+    {
+        $isStillAvailable = Appointment::isAvailable($date, $timeSlot, $this->schedule->getKey());
+
+        if (! $isStillAvailable) {
+            $this->dispatch('slot-unavailable', message: 'This slot was just booked by someone else.');
+
+            $this->availableDates = $this->scheduleService
+                ->getAvailableDatesForMonth(
+                    Carbon::createFromImmutable($this->date)
+                );
+            $this->calendar = $this->generateCalendarMonth($this->date);
+
+            if ($this->showTimeSlots && $this->selectedDate === $date) {
+                $this->slots = $this->availableDates->get($date) ?? collect();
+            }
+
+            return;
+        }
+
+        try {
+            $user = auth()->user();
+
+            $booking = $this->scheduleService
+                ->bookAppointment(
+                    $date,
+                    $timeSlot,
+                    $user,
+                    $this->schedule,
+                );
+
+            $this->dispatch('booking-successful',
+                message: 'Your appointment has been booked!',
+                bookingId: $booking->id
+            );
+
+            $this->availableDates = $this->scheduleService
+                ->getAvailableDatesForMonth(
+                    Carbon::createFromImmutable($this->date)
+                );
+            $this->calendar = $this->generateCalendarMonth($this->date);
+
+            if ($this->showTimeSlots && $this->selectedDate === $date) {
+                $this->slots = $this->availableDates->get($date) ?? collect();
+
+                if ($this->slots->isEmpty()) {
+                    $this->showTimeSlots = false;
+                }
+            }
+        } catch (Exception $e) {
+            $this->dispatch('booking-failed', message: 'Could not book this slot. Please try again.');
+        }
+    }
 
     public function generateCalendarMonth(CarbonImmutable $date): array
     {
@@ -104,6 +160,21 @@ class Schedule extends Component
                 ])
                 ->chunk(7),
         ];
+    }
+
+    public function getAppointmentDuration(): int
+    {
+        if ($this->schedule->type->is(ScheduleType::Daily)) {
+            return $this->schedule->availability->appointment_duration;
+        }
+
+        $dayOfWeek = Str::lower(now()->parse($this->selectedDate)->format('l'));
+
+        $day = $this->schedule->days()
+            ->where('type', $dayOfWeek)
+            ->first();
+
+        return $day ? $day->availability->appointment_duration : 0;
     }
 
     public static function render()
