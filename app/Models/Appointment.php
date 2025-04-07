@@ -14,6 +14,8 @@ class Appointment extends Model
     protected $table = 'appointments';
 
     protected $fillable = [
+        'user_id',
+        'schedule_id',
         'date',
         'time_slot',
         'status',
@@ -52,9 +54,8 @@ class Appointment extends Model
             ->where('time_slot', $timeSlot)
             ->where('schedule_id', $schedule->getKey())
             ->whereNotIn('status', [
-                AppointmentStatus::Pending->value,
-                AppointmentStatus::Cancelled->value,
-                AppointmentStatus::Rescheduled->value,
+                AppointmentStatus::Cancelled,
+                AppointmentStatus::Rescheduled,
             ])
             ->exists();
     }
