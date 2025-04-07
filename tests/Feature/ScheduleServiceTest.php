@@ -1,11 +1,14 @@
 <?php
 
+use App\Enums\AppointmentStatus;
 use App\Enums\DayType;
 use App\Enums\ScheduleType;
+use App\Models\Appointment;
 use App\Models\Availability;
 use App\Models\Day;
 use App\Models\Schedule;
 use App\Models\Slot;
+use App\Models\User;
 use App\Services\ScheduleService;
 use Carbon\Carbon;
 
@@ -392,4 +395,168 @@ it('returns available dates and time slots for current month when schedule is se
             ->map(fn ($date) => $date->toDateString())
             ->toArray()
         );
+});
+
+it('can book an appointment', function () {
+    $user = User::factory()->create();
+    $testDate = Carbon::parse('1st November 2024');
+
+    Carbon::setTestNow($testDate);
+
+    $availability = Availability::factory()->create();
+
+    $slots = Slot::factory()->createMany(
+        [
+            [
+                'start_time' => '11:00',
+                'end_time' => '11:45',
+            ],
+            [
+                'start_time' => '12:00',
+                'end_time' => '12:45',
+            ],
+        ]);
+
+    $availability->slots()->attach($slots);
+
+    $schedule = Schedule::factory()
+        ->active()
+        ->for($availability)
+        ->create([
+            'type' => ScheduleType::Daily->value,
+            'excluded_days' => [],
+        ]);
+
+    $appointment = (new ScheduleService)
+        ->bookAppointment(
+            date: '2024-11-04',
+            timeSlot: '11:00',
+            user: $user,
+            schedule: $schedule
+        );
+
+    expect($appointment)
+        ->toBeInstanceOf(Appointment::class)
+        ->and($appointment->date->toDateString())
+        ->toBe('2024-11-04')
+        ->and($appointment->time_slot->format('H:i'))
+        ->toBe('11:00')
+        ->and($appointment->user->name)
+        ->toBe($user->name)
+        ->and($appointment->schedule->name)
+        ->toBe($schedule->name)
+        ->and($appointment->status)
+        ->toBe(AppointmentStatus::Pending);
+});
+
+it('will throw exception when booking appointment that is booked and pending', function () {
+    $user = User::factory()->create();
+    $testDate = Carbon::parse('1st November 2024');
+
+    Carbon::setTestNow($testDate);
+
+    $availability = Availability::factory()->create();
+
+    $slots = Slot::factory()->createMany(
+        [
+            [
+                'start_time' => '11:00',
+                'end_time' => '11:45',
+            ],
+            [
+                'start_time' => '12:00',
+                'end_time' => '12:45',
+            ],
+        ]);
+
+    $availability->slots()->attach($slots);
+
+    $schedule = Schedule::factory()
+        ->active()
+        ->for($availability)
+        ->for($user)
+        ->create([
+            'type' => ScheduleType::Daily->value,
+            'excluded_days' => [],
+        ]);
+
+    (new ScheduleService)->bookAppointment(
+            date: '2024-11-04',
+            timeSlot: '11:00',
+            user: $user,
+            schedule: $schedule
+        );
+
+    (new ScheduleService)->bookAppointment(
+        date: '2024-11-04',
+        timeSlot: '11:00',
+        user: $user,
+        schedule: $schedule
+    );
+})->throws(Exception::class, 'Appointment slot is no longer available');;
+
+it('will re-book appointment with correct details in place of cancelled one', function () {
+    $user = User::factory()->create();
+    $testDate = Carbon::parse('1st November 2024');
+
+    Carbon::setTestNow($testDate);
+
+    $availability = Availability::factory()->create([
+        'appointment_duration' => 45,
+    ]);
+
+    $slots = Slot::factory()->createMany(
+        [
+            [
+                'start_time' => '11:00',
+                'end_time' => '11:45',
+            ],
+            [
+                'start_time' => '12:00',
+                'end_time' => '12:45',
+            ],
+        ]);
+
+    $availability->slots()->attach($slots);
+
+    $schedule = Schedule::factory()
+        ->active()
+        ->for($availability)
+        ->for($user)
+        ->create([
+            'type' => ScheduleType::Daily->value,
+            'excluded_days' => [],
+        ]);
+
+    (new Appointment)->create([
+        'user_id' => $user->getKey(),
+        'schedule_id' => $schedule->getKey(),
+        'date' => '2024-11-04',
+        'time_slot' => '11:00',
+        'status' => AppointmentStatus::Cancelled,
+        'duration' => $availability->appointment_duration,
+    ]);
+
+    expect(Appointment::count())
+        ->toBe(1)
+        ->and(Appointment::first()->status)
+        ->toBe(AppointmentStatus::Cancelled)
+        ->and(Appointment::first()->user->getKey())
+        ->toBe($user->getKey());
+
+    $newUser = User::factory()->create();
+
+    (new ScheduleService)->bookAppointment(
+        date: '2024-11-04',
+        timeSlot: '11:00',
+        user: $newUser,
+        schedule: $schedule
+    );
+
+    expect(Appointment::count())
+        ->toBe(1)
+        ->and(Appointment::first()->status)
+        ->toBe(AppointmentStatus::Pending)
+        ->and(Appointment::first()->user->getKey())
+        ->toBe($newUser->getKey());
 });
