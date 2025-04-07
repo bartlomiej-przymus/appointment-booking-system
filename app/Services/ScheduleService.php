@@ -290,21 +290,43 @@ class ScheduleService
             $user,
             $schedule
         ) {
-            $isAvailable = Appointment::isAvailable($date, $timeSlot, $schedule);
+            $isAvailable = (new Appointment)->isAvailable($date, $timeSlot, $schedule);
 
             if (! $isAvailable) {
                 throw new Exception('Appointment slot is no longer available');
             }
 
-            $duration = $schedule->availability()->duration;
+            $duration = $this->getAppointmentDuration($schedule, $date);
 
-            return Appointment::create([
+            return Appointment::updateOrCreate([
+                'date' => $date,
+                'time_slot' => $timeSlot,
+                'schedule_id' => $schedule->getKey(),
+            ], [
                 'user_id' => $user->getKey(),
                 'schedule_id' => $schedule->getKey(),
                 'date' => $date,
                 'time_slot' => $timeSlot,
                 'status' => AppointmentStatus::Pending->value,
+                'duration' => $duration,
             ]);
         });
+    }
+
+    public function getAppointmentDuration(
+        Schedule $schedule,
+        string $selectedDate,
+    ): int {
+        if ($schedule->type->is(ScheduleType::Daily)) {
+            return $schedule->availability->appointment_duration;
+        }
+
+        $dayOfWeek = Str::lower(now()->parse($selectedDate)->format('l'));
+
+        $day = $schedule->days()
+            ->where('type', $dayOfWeek)
+            ->first();
+
+        return $day ? $day->availability->appointment_duration : 0;
     }
 }

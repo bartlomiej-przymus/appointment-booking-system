@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Enums\ScheduleType;
 use App\Models\Appointment;
 use App\Models\Schedule as ScheduleModel;
 use App\Services\ScheduleService;
@@ -11,7 +10,6 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Exception;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -164,17 +162,10 @@ class Schedule extends Component
 
     public function getAppointmentDuration(): int
     {
-        if ($this->schedule->type->is(ScheduleType::Daily)) {
-            return $this->schedule->availability->appointment_duration;
-        }
-
-        $dayOfWeek = Str::lower(now()->parse($this->selectedDate)->format('l'));
-
-        $day = $this->schedule->days()
-            ->where('type', $dayOfWeek)
-            ->first();
-
-        return $day ? $day->availability->appointment_duration : 0;
+        return $this->scheduleService->getAppointmentDuration(
+            $this->schedule,
+            $this->selectedDate
+        );
     }
 
     public static function render()
