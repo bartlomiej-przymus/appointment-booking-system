@@ -481,11 +481,11 @@ it('will throw exception when booking appointment that is booked and pending', f
         ]);
 
     (new ScheduleService)->bookAppointment(
-            date: '2024-11-04',
-            timeSlot: '11:00',
-            user: $user,
-            schedule: $schedule
-        );
+        date: '2024-11-04',
+        timeSlot: '11:00',
+        user: $user,
+        schedule: $schedule
+    );
 
     (new ScheduleService)->bookAppointment(
         date: '2024-11-04',
@@ -493,7 +493,7 @@ it('will throw exception when booking appointment that is booked and pending', f
         user: $user,
         schedule: $schedule
     );
-})->throws(Exception::class, 'Appointment slot is no longer available');;
+})->throws(Exception::class, 'Appointment slot is no longer available');
 
 it('will re-book appointment with correct details in place of cancelled one', function () {
     $user = User::factory()->create();
