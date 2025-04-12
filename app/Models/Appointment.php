@@ -48,11 +48,11 @@ class Appointment extends Model
         return $this->belongsTo(Schedule::class);
     }
 
-    public function isAvailable(string $date, string $timeSlot, Schedule $schedule): bool
+    public function isAvailable(string $date, string $timeSlot, int $scheduleId): bool
     {
         return ! $this->where('date', $date)
             ->where('time_slot', $timeSlot)
-            ->where('schedule_id', $schedule->getKey())
+            ->where('schedule_id', $scheduleId)
             ->whereNotIn('status', [
                 AppointmentStatus::Cancelled,
                 AppointmentStatus::Rescheduled,
