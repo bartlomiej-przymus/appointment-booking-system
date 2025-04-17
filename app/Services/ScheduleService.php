@@ -136,10 +136,10 @@ class ScheduleService
             $dateRange->get('start'),
             $activeSchedule->active_from
         );
-        $endDate = min(
-            $dateRange->get('end'),
-            $activeSchedule->active_to
-        );
+
+        $endDate = is_null($activeSchedule->active_to)
+            ? $dateRange->get('end')
+            : min($dateRange->get('end'), $activeSchedule->active_to);
 
         if ($startDate > $endDate) {
             return collect();
