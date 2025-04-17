@@ -52,6 +52,7 @@ class Schedule extends Component
         $this->refreshCalendar();
     }
 
+    #[On('authentication-required')]
     #[On('time-or-date-invalid')]
     #[On('slot-unavailable')]
     #[On('booking-successful')]
@@ -100,6 +101,12 @@ class Schedule extends Component
         $date = $this->selectedDate;
         $time = $this->selectedTime;
 
+        if (is_null(auth()->user())) {
+            $this->dispatch('authentication-required', message: 'Please log in to book an appointment.');
+
+            return;
+        }
+
         if (! filled($date) || ! filled($time)) {
             $this->dispatch('time-or-date-invalid', 'You need to select date and time to book a slot');
 
@@ -121,12 +128,6 @@ class Schedule extends Component
             if ($this->showTimeSlots) {
                 $this->slots = $this->availableDates->get($date) ?? collect();
             }
-
-            return;
-        }
-
-        if (is_null(auth()->user())) {
-            $this->dispatch('authentication-required', message: 'Please log in to book an appointment.');
 
             return;
         }
