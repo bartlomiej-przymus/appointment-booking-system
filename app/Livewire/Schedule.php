@@ -10,7 +10,9 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Exception;
 use Illuminate\Support\Collection;
-use Livewire\Attributes\Locked;
+use Illuminate\View\View;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Schedule extends Component
@@ -25,49 +27,53 @@ class Schedule extends Component
 
     public string $selectedDate = '';
 
-    #[Locked]
+    public string $selectedTime = '';
+
     public Collection $availableDates;
 
     public ?ScheduleModel $schedule;
 
-    public function __construct(private $scheduleService = new ScheduleService) {}
+    private ScheduleService $scheduleService;
+
+    public function boot(ScheduleService $scheduleService): void
+    {
+        $this->scheduleService = $scheduleService;
+    }
 
     public function mount(): void
     {
+        $this->slots = collect();
+        $this->selectedDate = '';
+        $this->selectedTime = '';
+        $this->showTimeSlots = false;
         $this->schedule = $this->scheduleService
             ->getActiveSchedule();
+        $this->date = CarbonImmutable::now()->startOfMonth();
+        $this->refreshCalendar();
+    }
 
-        $this->date = CarbonImmutable::create(
-            Carbon::now()->year,
-            Carbon::now()->month
-        );
-        $this->availableDates = $this->scheduleService
-            ->getAvailableDatesForMonth(
-                Carbon::createFromImmutable($this->date)
-            );
-        $this->calendar = $this->generateCalendarMonth($this->date);
+    #[On('time-or-date-invalid')]
+    #[On('slot-unavailable')]
+    #[On('booking-successful')]
+    #[On('booking-failed')]
+    public function reload(): void
+    {
+        $this->showTimeSlots = false;
+        $this->selectedDate = '';
+        $this->selectedTime = '';
+        $this->refreshCalendar();
     }
 
     public function nextMonth(): void
     {
-        $this->showTimeSlots = false;
         $this->date = $this->date->addMonth();
-        $this->availableDates = (new ScheduleService)
-            ->getAvailableDatesForMonth(
-                Carbon::createFromImmutable($this->date)
-            );
-        $this->calendar = $this->generateCalendarMonth($this->date);
+        $this->reload();
     }
 
     public function prevMonth(): void
     {
-        $this->showTimeSlots = false;
         $this->date = $this->date->subMonth();
-        $this->availableDates = (new ScheduleService)
-            ->getAvailableDatesForMonth(
-                Carbon::createFromImmutable($this->date)
-            );
-        $this->calendar = $this->generateCalendarMonth($this->date);
+        $this->reload();
     }
 
     public function showSlots(string $date): void
@@ -79,26 +85,48 @@ class Schedule extends Component
         }
 
         $this->selectedDate = $date;
-        $this->slots = $this->availableDates->get($date);
-        $this->showTimeSlots = true;
+        $this->slots = $this->availableDates->get($date, collect());
+
+        $this->slots->isEmpty() ? $this->showTimeSlots = false : $this->showTimeSlots = true;
     }
 
-    public function bookSlot(string $date, string $timeSlot): void
+    public function setTime(string $time): void
     {
-        $isStillAvailable = Appointment::isAvailable($date, $timeSlot, $this->schedule->getKey());
+        $this->selectedTime = $time;
+    }
+
+    public function bookSlot(): void
+    {
+        $date = $this->selectedDate;
+        $time = $this->selectedTime;
+
+        if (! filled($date) || ! filled($time)) {
+            $this->dispatch('time-or-date-invalid', 'You need to select date and time to book a slot');
+
+            return;
+        }
+
+        if (is_null($this->schedule)) {
+            $this->dispatch('booking-failed', message: 'No active schedule available.');
+
+            return;
+        }
+
+        $isStillAvailable = (new Appointment)->isAvailable($date, $time, $this->schedule->getKey());
 
         if (! $isStillAvailable) {
             $this->dispatch('slot-unavailable', message: 'This slot was just booked by someone else.');
+            $this->refreshCalendar();
 
-            $this->availableDates = $this->scheduleService
-                ->getAvailableDatesForMonth(
-                    Carbon::createFromImmutable($this->date)
-                );
-            $this->calendar = $this->generateCalendarMonth($this->date);
-
-            if ($this->showTimeSlots && $this->selectedDate === $date) {
+            if ($this->showTimeSlots) {
                 $this->slots = $this->availableDates->get($date) ?? collect();
             }
+
+            return;
+        }
+
+        if (is_null(auth()->user())) {
+            $this->dispatch('authentication-required', message: 'Please log in to book an appointment.');
 
             return;
         }
@@ -109,21 +137,15 @@ class Schedule extends Component
             $booking = $this->scheduleService
                 ->bookAppointment(
                     $date,
-                    $timeSlot,
+                    $time,
                     $user,
                     $this->schedule,
                 );
-
             $this->dispatch('booking-successful',
                 message: 'Your appointment has been booked!',
                 bookingId: $booking->id
             );
-
-            $this->availableDates = $this->scheduleService
-                ->getAvailableDatesForMonth(
-                    Carbon::createFromImmutable($this->date)
-                );
-            $this->calendar = $this->generateCalendarMonth($this->date);
+            $this->refreshCalendar();
 
             if ($this->showTimeSlots && $this->selectedDate === $date) {
                 $this->slots = $this->availableDates->get($date) ?? collect();
@@ -133,6 +155,7 @@ class Schedule extends Component
                 }
             }
         } catch (Exception $e) {
+            logger()->error('Booking failed', ['exception' => $e->getMessage()]);
             $this->dispatch('booking-failed', message: 'Could not book this slot. Please try again.');
         }
     }
@@ -160,6 +183,7 @@ class Schedule extends Component
         ];
     }
 
+    #[Computed]
     public function getAppointmentDuration(): int
     {
         return $this->scheduleService->getAppointmentDuration(
@@ -168,7 +192,15 @@ class Schedule extends Component
         );
     }
 
-    public static function render()
+    private function refreshCalendar(): void
+    {
+        $this->availableDates = $this->scheduleService->getAvailableDatesForMonth(
+            Carbon::createFromImmutable($this->date)
+        );
+        $this->calendar = $this->generateCalendarMonth($this->date);
+    }
+
+    public function render(): View
     {
         return view('livewire.schedule');
     }
