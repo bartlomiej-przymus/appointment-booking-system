@@ -7,10 +7,14 @@
             <div class="text-gray-800 text-3xl">
                 {{ $schedule->name }}
             </div>
+{{--                TODO: make no active schedule fully booked in a month text customizable--}}
+{{--        @elseif($schedule->isFullyBooked())--}}
+{{--            <div class="text-gray-500 text-xl">--}}
+{{--                Looks like I'm fully booked! Come back later as new dates are added constantly.--}}
+{{--            </div>--}}
         @else
             <div class="text-gray-500 text-xl">
-{{--                TODO: make no active schedule fully booked in a month text customizable--}}
-                Fully booked text / no active schedule
+
             </div>
         @endif
         @if($selectedDate)
@@ -27,10 +31,22 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
                 </svg>
                 <div class="text-gray-400">
-                    {{ now()->parse($selectedDate)->format('l dS \o\f F Y') }}
+                    {{ now()->parse($selectedDate)->format('l dS \o\f F Y') }} @if(filled($selectedTime)) at: {{ $selectedTime }}@endif
                 </div>
             </div>
         @endif
+        @auth
+            <button wire:click.prevent="bookSlot" class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2 mt-auto">Book Appointment</button>
+        @endauth
+        @guest
+            <div class="text-gray-500 text-sm mt-auto text-center">
+                In order to book an appointment please sign in.<br> If you don't have an account please sign up below.
+            </div>
+            <div class="flex flex-row gap-2">
+                <button class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2">Sign In</button>
+                <button class="rounded-full h-14 bg-red-100 hover:bg-red-300 w-1/2">Sign Up</button>
+            </div>
+        @endguest
     </div>
     <div class="w-2/3 px-6 py-8 flex flex-col gap-3">
         <div class="text-gray-800 text-xl">
@@ -103,12 +119,12 @@
                     @endforeach
                 </div>
             </div>
-            <aside class="w-1/4 pt-8 text-center flex flex-col gap-3 pl-4">
+            <aside class="w-1/4 mt-8 text-center flex flex-col gap-3 pl-4 max-h-[calc(6*3.5rem+5*0.75rem)] overflow-y-auto">
                 @if($showTimeSlots)
-                    @foreach($slots as $slot)
-                        <div class="font-light h-14 flex justify-center items-center border border-gray-200 hover:bg-gray-100">
+                    @foreach($slots as $index => $slot)
+                        <button wire:click="setTime('{{$slot}}')" wire:key="{{md5('ts-' . $index)}}" class="font-light min-h-14 flex justify-center items-center border {{ $selectedTime === $slot ? 'border-accentColor' : 'border-gray-200' }} hover:bg-gray-100">
                             {{$slot}}
-                        </div>
+                        </button>
                     @endforeach
                 @endif
             </aside>
