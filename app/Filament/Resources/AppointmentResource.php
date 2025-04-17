@@ -2,31 +2,47 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AppointmentResource\Pages\EditAppointment;
+use App\Enums\AppointmentStatus;
 use App\Filament\Resources\AppointmentResource\Pages\ListAppointments;
+use App\Filament\Resources\AppointmentResource\Widgets\UpcomingAppointments;
 use App\Models\Appointment;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Livewire\Component;
 
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $navigationLabel = 'Appointments';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                Action::make('showUpcomingOnly')
+                    ->label('Show Upcoming Appointments Only')
+                    ->icon('heroicon-o-calendar-days')
+                    ->action(function (Component $livewire): void {
+                        $livewire->tableFilters['status']['values'][0] = AppointmentStatus::Confirmed->value;
+                        $livewire->tableFilters['status']['values'][1] = AppointmentStatus::Rescheduled->value;
+                    })
+                    ->color('success'),
+            ])
             ->columns([
+                TextColumn::make('user.name')
+                    ->label('Client Name'),
                 TextColumn::make('date')
                     ->date('Y-m-d'),
                 TextColumn::make('time_slot')
+                    ->label('Time')
                     ->time('H:i'),
                 TextColumn::make('status')
                     ->badge(),
@@ -35,11 +51,17 @@ class AppointmentResource extends Resource
                     ->suffix('min'),
             ])
             ->actions([
-                EditAction::make(),
+                // TODO: action to reschedule appointment
+                // TODO: action to change state of appointment
             ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->multiple()
+                    ->options(AppointmentStatus::class),
+            ], layout: FiltersLayout::AboveContentCollapsible)
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // TODO: action to bulk reschedule appointments
                 ]),
             ]);
     }
@@ -48,7 +70,13 @@ class AppointmentResource extends Resource
     {
         return [
             'index' => ListAppointments::route('/'),
-            'edit' => EditAppointment::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            UpcomingAppointments::class,
         ];
     }
 }
