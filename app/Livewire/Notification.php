@@ -2,14 +2,17 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Notification extends Component
 {
     public $message = '';
+
     public $type = 'info';
+
     public $show = false;
+
     public $timeout = 3000;
 
     #[On('booking-failed')]
