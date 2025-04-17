@@ -172,13 +172,16 @@ class ScheduleService
                 [$dateRange->values()]
             )
             ->whereIn('status', [
+                AppointmentStatus::Pending->value,
                 AppointmentStatus::Confirmed->value,
                 AppointmentStatus::Rescheduled->value,
             ])
             ->orderBy('date')
             ->orderBy('time_slot')
             ->get()
-            ->groupBy('date')
+            ->groupBy(function ($appointment) {
+                return Carbon::parse($appointment->date)->format('Y-m-d');
+            })
             ->map(function (Collection $appointments) {
                 return $appointments
                     ->pluck('time_slot')
@@ -208,7 +211,6 @@ class ScheduleService
             ->format('Y-m-d');
         $bookedSlotsForDay = $bookedAppointments
             ->get($dateString, collect());
-
         $availableSlotsForDay = $availableSlots->reject(
             fn ($slot) => $bookedSlotsForDay->contains($slot)
         );
@@ -290,7 +292,7 @@ class ScheduleService
             $user,
             $schedule
         ) {
-            $isAvailable = (new Appointment)->isAvailable($date, $timeSlot, $schedule);
+            $isAvailable = (new Appointment)->isAvailable($date, $timeSlot, $schedule->getKey());
 
             if (! $isAvailable) {
                 throw new Exception('Appointment slot is no longer available');
