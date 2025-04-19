@@ -6,7 +6,6 @@ use App\Models\Appointment;
 use App\Models\Schedule as ScheduleModel;
 use App\Services\ScheduleService;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Exception;
 use Illuminate\Support\Collection;
@@ -17,7 +16,7 @@ use Livewire\Component;
 
 class Schedule extends Component
 {
-    public CarbonImmutable $date;
+    public Carbon $date;
 
     public array $calendar = [];
 
@@ -48,7 +47,7 @@ class Schedule extends Component
         $this->showTimeSlots = false;
         $this->schedule = $this->scheduleService
             ->getActiveSchedule();
-        $this->date = CarbonImmutable::now()->startOfMonth();
+        $this->date = now()->startOfMonth();
         $this->refreshCalendar();
     }
 
@@ -77,8 +76,10 @@ class Schedule extends Component
         $this->reload();
     }
 
-    public function showSlots(string $date): void
+    public function setDate(string $date): void
     {
+        $this->selectedTime = '';
+
         if ($this->showTimeSlots && $this->selectedDate === $date) {
             $this->showTimeSlots = false;
 
@@ -88,7 +89,7 @@ class Schedule extends Component
         $this->selectedDate = $date;
         $this->slots = $this->availableDates->get($date, collect());
 
-        $this->slots->isEmpty() ? $this->showTimeSlots = false : $this->showTimeSlots = true;
+        $this->showTimeSlots = $this->slots->isNotEmpty();
     }
 
     public function setTime(string $time): void
@@ -161,7 +162,7 @@ class Schedule extends Component
         }
     }
 
-    public function generateCalendarMonth(CarbonImmutable $date): array
+    public function generateCalendarMonth(Carbon $date): array
     {
         $startOfMonth = $date->startOfMonth();
         $endOfMonth = $date->endOfMonth();
@@ -187,6 +188,10 @@ class Schedule extends Component
     #[Computed]
     public function getAppointmentDuration(): int
     {
+        if (filled($this->selectedDate) || is_null($this->schedule )) {
+            return 0;
+        }
+
         return $this->scheduleService->getAppointmentDuration(
             $this->schedule,
             $this->selectedDate
@@ -195,9 +200,8 @@ class Schedule extends Component
 
     private function refreshCalendar(): void
     {
-        $this->availableDates = $this->scheduleService->getAvailableDatesForMonth(
-            Carbon::createFromImmutable($this->date)
-        );
+        $this->availableDates = $this->scheduleService
+            ->getAvailableDatesForMonth($this->date);
         $this->calendar = $this->generateCalendarMonth($this->date);
     }
 
