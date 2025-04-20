@@ -36,15 +36,28 @@
             </div>
         @endif
         @auth
-            <button wire:click.prevent="bookSlot" class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2 mt-auto">Book Appointment</button>
+            <button
+                wire:click.prevent="bookAppointment"
+                class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2 mt-auto"
+            >
+                Book Appointment
+            </button>
         @endauth
         @guest
             <div class="text-gray-500 text-sm mt-auto text-center">
                 In order to book an appointment please sign in.<br> If you don't have an account please sign up below.
             </div>
             <div class="flex flex-row gap-2">
-                <button class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2">Sign In</button>
-                <button class="rounded-full h-14 bg-red-100 hover:bg-red-300 w-1/2">Sign Up</button>
+                <button
+                    class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2"
+                >
+                    Sign In
+                </button>
+                <button
+                    class="rounded-full h-14 bg-red-100 hover:bg-red-300 w-1/2"
+                >
+                    Sign Up
+                </button>
             </div>
         @endguest
     </div>
@@ -55,7 +68,11 @@
         <div class="flex flex-row">
             <div class="flex flex-col w-3/4">
                 <nav class="flex flex-row gap-3 items-center justify-center h-8">
-                    <button class="p-2 rounded-full hover:bg-red-200 text-gray-500 flex flex-row items-center" wire:click="prevMonth">
+                    <button
+                        wire:click.prevent="prevMonth"
+                        wire:loading.attr="disabled"
+                        class="p-2 rounded-full hover:bg-red-200 text-gray-500 flex flex-row items-center"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                         </svg>
@@ -63,7 +80,11 @@
                     <div class="font-light text-l text-center px-4 w-1/4">
                         <h1>{{ $calendar['month'] }} - {{ $calendar['year'] }}</h1>
                     </div>
-                    <button class="p-2 rounded-full hover:bg-red-200 text-gray-500 flex flex-row items-center" wire:click="nextMonth">
+                    <button
+                        wire:click.prevent="nextMonth"
+                        wire:loading.attr="disabled"
+                        class="p-2 rounded-full hover:bg-red-200 text-gray-500 flex flex-row items-center"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                         </svg>
@@ -96,7 +117,8 @@
                         @foreach($week as $day)
                             @if($day['available'])
                                 <x-calendar.day
-                                    wire:click="showSlots('{{$day['date']}}')"
+                                    wire:click="setDate('{{$day['date']}}')"
+                                    wire:key="{{md5('day-' . $day['date'])}}"
                                     within-month="{{$day['withinMonth']}}"
                                     weekend="{{$day['weekend']}}"
                                     today="{{$day['today']}}"
@@ -107,6 +129,7 @@
                                 </x-calendar.day>
                             @else
                                 <x-calendar.day
+                                    wire:ignore
                                     within-month="{{$day['withinMonth']}}"
                                     weekend="{{$day['weekend']}}"
                                     today="{{$day['today']}}"
@@ -122,7 +145,11 @@
             <aside class="w-1/4 mt-8 text-center flex flex-col gap-3 pl-4 max-h-[calc(6*3.5rem+5*0.75rem)] overflow-y-auto">
                 @if($showTimeSlots)
                     @foreach($slots as $index => $slot)
-                        <button wire:click="setTime('{{$slot}}')" wire:key="{{md5('ts-' . $index)}}" class="font-light min-h-14 flex justify-center items-center border {{ $selectedTime === $slot ? 'border-accentColor' : 'border-gray-200' }} hover:bg-gray-100">
+                        <button
+                            wire:click.prevent="setTime('{{$slot}}')"
+                            wire:key="{{md5('ts-' . $index)}}"
+                            class="font-light min-h-14 flex justify-center items-center border {{ $selectedTime === $slot ? 'border-accentColor' : 'border-gray-200' }} hover:bg-gray-100"
+                        >
                             {{$slot}}
                         </button>
                     @endforeach
