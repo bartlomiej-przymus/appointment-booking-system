@@ -189,7 +189,7 @@ class Schedule extends Component
     #[Computed]
     public function getAppointmentDuration(): int
     {
-        if (! filled($this->selectedDate) || is_null($this->schedule )) {
+        if (! filled($this->selectedDate) || is_null($this->schedule)) {
             return 0;
         }
 
