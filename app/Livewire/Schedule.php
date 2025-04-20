@@ -77,8 +77,10 @@ class Schedule extends Component
         $this->reload();
     }
 
-    public function showSlots(string $date): void
+    public function setDate(string $date): void
     {
+        $this->selectedTime = '';
+
         if ($this->showTimeSlots && $this->selectedDate === $date) {
             $this->showTimeSlots = false;
 
@@ -88,7 +90,7 @@ class Schedule extends Component
         $this->selectedDate = $date;
         $this->slots = $this->availableDates->get($date, collect());
 
-        $this->slots->isEmpty() ? $this->showTimeSlots = false : $this->showTimeSlots = true;
+        $this->showTimeSlots = $this->slots->isNotEmpty();
     }
 
     public function setTime(string $time): void
@@ -96,7 +98,7 @@ class Schedule extends Component
         $this->selectedTime = $time;
     }
 
-    public function bookSlot(): void
+    public function bookAppointment(): void
     {
         $date = $this->selectedDate;
         $time = $this->selectedTime;
@@ -187,6 +189,10 @@ class Schedule extends Component
     #[Computed]
     public function getAppointmentDuration(): int
     {
+        if (! filled($this->selectedDate) || is_null($this->schedule )) {
+            return 0;
+        }
+
         return $this->scheduleService->getAppointmentDuration(
             $this->schedule,
             $this->selectedDate
