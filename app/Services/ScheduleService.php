@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\AppointmentStatus;
+use App\Enums\DayType;
 use App\Enums\ScheduleType;
 use App\Models\Appointment;
 use App\Models\Schedule;
@@ -321,13 +322,17 @@ class ScheduleService
     ): int {
         if ($schedule->type->is(ScheduleType::Daily)) {
             return $schedule->availability->appointment_duration;
+        } elseif ($schedule->type->is(ScheduleType::Weekly)) {
+            $dayOfWeek = Str::lower(now()->parse($selectedDate)->format('l'));
+
+            $day = $schedule->days()
+                ->where('type', DayType::from($dayOfWeek))
+                ->first();
+        } else {
+            $day = $schedule->days()
+                ->where('date', $selectedDate)
+                ->first();
         }
-
-        $dayOfWeek = Str::lower(now()->parse($selectedDate)->format('l'));
-
-        $day = $schedule->days()
-            ->where('type', $dayOfWeek)
-            ->first();
 
         return $day ? $day->availability->appointment_duration : 0;
     }
