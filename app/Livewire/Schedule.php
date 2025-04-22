@@ -10,6 +10,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -91,6 +92,49 @@ class Schedule extends Component
         $this->slots = $this->availableDates->get($date, collect());
 
         $this->showTimeSlots = $this->slots->isNotEmpty();
+    }
+
+    public function canBook(): bool
+    {
+        return ! filled($this->selectedDate) || ! filled($this->selectedTime);
+    }
+
+    #[On('login-successful')]
+    public function handleAuthenticatedUser(): void
+    {
+        // Restore the calendar date if it was saved
+        $savedCalendarDate = Session::pull('appointment_calendar_date');
+        if ($savedCalendarDate) {
+            $this->date = CarbonImmutable::parse($savedCalendarDate);
+        } else {
+            $this->date = CarbonImmutable::now()->startOfMonth();
+        }
+
+        // Ensure we have the current schedule
+        $this->schedule = $this->scheduleService->getActiveSchedule();
+
+        // Reload the calendar with correct available dates
+        $this->refreshCalendar();
+
+        // Restore the selected date if it exists in session
+        $savedDate = Session::pull('appointment_selected_date');
+        if (filled($savedDate) && $this->availableDates->has($savedDate)) {
+            dd($savedDate);
+            $this->selectedDate = $savedDate;
+            $this->slots = $this->availableDates->get($savedDate, collect());
+            $this->showTimeSlots = $this->slots->isNotEmpty();
+
+            // Restore the selected time if it exists in session and is still available
+            $savedTime = Session::pull('appointment_selected_time');
+            if (filled($savedTime) && $this->slots->contains($savedTime)) {
+                $this->selectedTime = $savedTime;
+            }
+        }
+
+        // Attempt to book appointment if we have all required data
+        if (filled($this->selectedDate) && filled($this->selectedTime)) {
+            $this->bookAppointment();
+        }
     }
 
     public function setTime(string $time): void

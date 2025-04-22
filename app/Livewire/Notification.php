@@ -16,6 +16,7 @@ class Notification extends Component
     public $timeout = 3000;
 
     #[On('booking-failed')]
+    #[On('login-failed')]
     public function showError($message): void
     {
         $this->message = $message;
@@ -26,6 +27,8 @@ class Notification extends Component
     }
 
     #[On('booking-successful')]
+    #[On('login-successful')]
+    #[On('user-created')]
     public function showSuccess($message): void
     {
         $this->message = $message;

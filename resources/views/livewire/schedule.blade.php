@@ -14,7 +14,7 @@
 {{--            </div>--}}
         @else
             <div class="text-gray-500 text-xl">
-
+                Looks like there are no available dates to book, please come back later.
             </div>
         @endif
         @if($selectedDate)
@@ -35,31 +35,32 @@
                 </div>
             </div>
         @endif
-        @auth
-            <button
-                wire:click.prevent="bookAppointment"
-                class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2 mt-auto"
-            >
-                Book Appointment
-            </button>
-        @endauth
-        @guest
-            <div class="text-gray-500 text-sm mt-auto text-center">
-                In order to book an appointment please sign in.<br> If you don't have an account please sign up below.
-            </div>
-            <div class="flex flex-row gap-2">
-                <button
-                    class="rounded-full h-14 bg-red-300 hover:bg-red-500 w-1/2"
-                >
-                    Sign In
-                </button>
-                <button
-                    class="rounded-full h-14 bg-red-100 hover:bg-red-300 w-1/2"
-                >
-                    Sign Up
-                </button>
-            </div>
-        @endguest
+        <div class="mt-auto">
+            @guest
+                @livewire('scheduleLoginSignup', [
+                    'disabled' => $this->canBook(),
+                    'parentSelectedDate' => $selectedDate,
+                    'parentSelectedTime' => $selectedTime,
+                    'parentCalendarDate' => $date->toDateString()
+                ])
+            @endguest
+            @auth
+                @if($this->canBook())
+                    <div class="text-gray-500 text-sm text-center">
+                        Please select date and time
+                    </div>
+                @endif
+                <div class="flex flex-row justify-center mt-4">
+                    <button
+                        wire:click.prevent="bookAppointment"
+                        @disabled($this->canBook())
+                        class="rounded-md h-11 w-1/2 {{ $this->canBook() ? 'bg-gray-200' : 'bg-red-300 hover:bg-red-500' }}"
+                    >
+                        Book Appointment
+                    </button>
+                </div>
+            @endauth
+        </div>
     </div>
     <div class="w-2/3 px-6 py-8 flex flex-col gap-3">
         <div class="text-gray-800 text-xl">
