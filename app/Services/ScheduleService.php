@@ -284,16 +284,17 @@ class ScheduleService
     public function bookAppointment(
         string $date,
         string $timeSlot,
-        User $user,
         Schedule $schedule
     ): Appointment {
+        $user = auth()->user();
+
         return DB::transaction(function () use (
             $date,
             $timeSlot,
             $user,
             $schedule
         ) {
-            $isAvailable = (new Appointment)->isAvailable($date, $timeSlot, $schedule->getKey());
+            $isAvailable = $this->isAppointmentAvailable($date, $timeSlot, $schedule->getKey());
 
             if (! $isAvailable) {
                 throw new Exception('Appointment slot is no longer available');
@@ -314,6 +315,21 @@ class ScheduleService
                 'duration' => $duration,
             ]);
         });
+    }
+
+    public function isAppointmentAvailable(
+        string $date,
+        string $timeSlot,
+        int $scheduleId
+    ): bool {
+        return ! Appointment::where('date', $date)
+            ->where('time_slot', $timeSlot)
+            ->where('schedule_id', $scheduleId)
+            ->whereNotIn('status', [
+                AppointmentStatus::Cancelled,
+                AppointmentStatus::Rescheduled,
+            ])
+            ->exists();
     }
 
     public function getAppointmentDuration(
