@@ -43,21 +43,30 @@ class Schedule extends Component
 
     public function mount(): void
     {
-        $this->slots = collect();
-        $this->selectedDate = '';
-        $this->selectedTime = '';
-        $this->showTimeSlots = false;
-        $this->schedule = $this->scheduleService
-            ->getActiveSchedule();
-        $this->date = CarbonImmutable::now()->startOfMonth();
-        $this->refreshCalendar();
+        if(auth()->check() && $this->hasSessionAppointmentData()) {
+            $this->retrieveBookingInfo();
+        } else {
+            $this->slots = collect();
+            $this->selectedDate = '';
+            $this->selectedTime = '';
+            $this->showTimeSlots = false;
+            $this->schedule = $this->scheduleService
+                ->getActiveSchedule();
+            $this->date = CarbonImmutable::now()->startOfMonth();
+            $this->refreshCalendar();
+        }
     }
 
-    #[On('authentication-required')]
-    #[On('time-or-date-invalid')]
-    #[On('slot-unavailable')]
+    private function hasSessionAppointmentData(): bool
+    {
+        return Session::has('appointment_calendar_date')
+            && Session::has('appointment_selected_date')
+            && Session::has('appointment_selected_time');
+    }
+
     #[On('booking-successful')]
     #[On('booking-failed')]
+    #[On('time-or-date-no-longer-valid')]
     public function reload(): void
     {
         $this->showTimeSlots = false;
@@ -99,10 +108,8 @@ class Schedule extends Component
         return ! filled($this->selectedDate) || ! filled($this->selectedTime);
     }
 
-    #[On('login-successful')]
-    public function handleAuthenticatedUser(): void
+    public function retrieveBookingInfo(): void
     {
-        // Restore the calendar date if it was saved
         $savedCalendarDate = Session::pull('appointment_calendar_date');
         if ($savedCalendarDate) {
             $this->date = CarbonImmutable::parse($savedCalendarDate);
@@ -110,30 +117,24 @@ class Schedule extends Component
             $this->date = CarbonImmutable::now()->startOfMonth();
         }
 
-        // Ensure we have the current schedule
         $this->schedule = $this->scheduleService->getActiveSchedule();
 
-        // Reload the calendar with correct available dates
         $this->refreshCalendar();
 
-        // Restore the selected date if it exists in session
         $savedDate = Session::pull('appointment_selected_date');
+
         if (filled($savedDate) && $this->availableDates->has($savedDate)) {
-            dd($savedDate);
             $this->selectedDate = $savedDate;
             $this->slots = $this->availableDates->get($savedDate, collect());
             $this->showTimeSlots = $this->slots->isNotEmpty();
 
-            // Restore the selected time if it exists in session and is still available
             $savedTime = Session::pull('appointment_selected_time');
-            if (filled($savedTime) && $this->slots->contains($savedTime)) {
-                $this->selectedTime = $savedTime;
-            }
-        }
 
-        // Attempt to book appointment if we have all required data
-        if (filled($this->selectedDate) && filled($this->selectedTime)) {
-            $this->bookAppointment();
+            if(filled($savedTime) && $this->slots->contains($savedTime)) {
+                $this->selectedTime = $savedTime;
+            } else {
+                $this->dispatch('time-or-date-no-longer-valid', 'Selected booking slot is no longer available. Please choose different appointment time.');
+            }
         }
     }
 
@@ -147,14 +148,20 @@ class Schedule extends Component
         $date = $this->selectedDate;
         $time = $this->selectedTime;
 
-        if (is_null(auth()->user())) {
-            $this->dispatch('authentication-required', message: 'Please log in to book an appointment.');
+        if (empty($date) || empty($time)) {
+            $this->dispatch('booking-failed', 'You need to select date and time to book a slot');
 
             return;
         }
 
-        if (! filled($date) || ! filled($time)) {
-            $this->dispatch('time-or-date-invalid', 'You need to select date and time to book a slot');
+        if (auth()->guest()) {
+            $this->dispatch('authentication-required', message: 'Please log in to book an appointment.');
+
+            Session::put('appointment_calendar_date', $this->date->format('Y-m-d'));
+            Session::put('appointment_selected_date', $this->selectedDate);
+            Session::put('appointment_selected_time', $this->selectedTime);
+
+            $this->redirect('/login');
 
             return;
         }
@@ -165,10 +172,10 @@ class Schedule extends Component
             return;
         }
 
-        $isStillAvailable = (new Appointment)->isAvailable($date, $time, $this->schedule->getKey());
+        $available = $this->scheduleService->isAppointmentAvailable($date, $time, $this->schedule->getKey());
 
-        if (! $isStillAvailable) {
-            $this->dispatch('slot-unavailable', message: 'This slot was just booked by someone else.');
+        if (! $available) {
+            $this->dispatch('booking-failed', 'Selected booking slot is no longer available. Please choose different appointment time.');
             $this->refreshCalendar();
 
             if ($this->showTimeSlots) {
@@ -179,13 +186,10 @@ class Schedule extends Component
         }
 
         try {
-            $user = auth()->user();
-
             $booking = $this->scheduleService
                 ->bookAppointment(
                     $date,
                     $time,
-                    $user,
                     $this->schedule,
                 );
             $this->dispatch('booking-successful',
@@ -203,7 +207,7 @@ class Schedule extends Component
             }
         } catch (Exception $e) {
             logger()->error('Booking failed', ['exception' => $e->getMessage()]);
-            $this->dispatch('booking-failed', message: 'Could not book this slot. Please try again.');
+            $this->dispatch('booking-failed', message: 'Could not make a booking. Please try again.');
         }
     }
 

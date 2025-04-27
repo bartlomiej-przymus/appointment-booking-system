@@ -36,30 +36,28 @@
             </div>
         @endif
         <div class="mt-auto">
-            @guest
-                @livewire('scheduleLoginSignup', [
-                    'disabled' => $this->canBook(),
-                    'parentSelectedDate' => $selectedDate,
-                    'parentSelectedTime' => $selectedTime,
-                    'parentCalendarDate' => $date->toDateString()
-                ])
-            @endguest
-            @auth
-                @if($this->canBook())
-                    <div class="text-gray-500 text-sm text-center">
-                        Please select date and time
-                    </div>
-                @endif
-                <div class="flex flex-row justify-center mt-4">
-                    <button
-                        wire:click.prevent="bookAppointment"
-                        @disabled($this->canBook())
-                        class="rounded-md h-11 w-1/2 {{ $this->canBook() ? 'bg-gray-200' : 'bg-red-300 hover:bg-red-500' }}"
-                    >
-                        Book Appointment
-                    </button>
+            @if($this->canBook())
+                <div class="text-gray-500 text-sm text-center">
+                    Please select date and time
                 </div>
-            @endauth
+            @endif
+            <div class="flex flex-row justify-center mt-4">
+                <button
+                    wire:click.prevent="bookAppointment"
+                    @disabled($this->canBook())
+                    class="rounded-md h-11 w-1/2 {{ $this->canBook() ? 'bg-gray-200' : 'bg-red-300 hover:bg-red-500' }}"
+                >
+                    Book Appointment
+                </button>
+            </div>
+                @auth
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-1/2 h-11 bg-red-600 text-white p-2 rounded-md mt-4">
+                            {{ __('Log Out') }}
+                        </button>
+                    </form>
+                @endauth
         </div>
     </div>
     <div class="w-2/3 px-6 py-8 flex flex-col gap-3">
@@ -159,3 +157,4 @@
         </div>
     </div>
 </section>
+
