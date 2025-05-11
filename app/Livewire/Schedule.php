@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Models\Appointment;
 use App\Models\Schedule as ScheduleModel;
 use App\Services\ScheduleService;
 use Carbon\Carbon;
@@ -43,7 +42,7 @@ class Schedule extends Component
 
     public function mount(): void
     {
-        if(auth()->check() && $this->hasSessionAppointmentData()) {
+        if (auth()->check() && $this->hasSessionAppointmentData()) {
             $this->retrieveBookingInfo();
         } else {
             $this->slots = collect();
@@ -130,7 +129,7 @@ class Schedule extends Component
 
             $savedTime = Session::pull('appointment_selected_time');
 
-            if(filled($savedTime) && $this->slots->contains($savedTime)) {
+            if (filled($savedTime) && $this->slots->contains($savedTime)) {
                 $this->selectedTime = $savedTime;
             } else {
                 $this->dispatch('time-or-date-no-longer-valid', 'Selected booking slot is no longer available. Please choose different appointment time.');

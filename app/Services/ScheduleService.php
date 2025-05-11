@@ -7,7 +7,6 @@ use App\Enums\DayType;
 use App\Enums\ScheduleType;
 use App\Models\Appointment;
 use App\Models\Schedule;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
