@@ -96,7 +96,7 @@ it('returns available dates and time slots for current month when schedule is se
     Carbon::setTestNow($testDate);
 
     /**
-     * Current date is set for November 2024
+     * The current date is set for the 1st November 2024
      *
      * Two Availability Time Slots are created
      * Type daily Schedule is created set to be
@@ -104,13 +104,13 @@ it('returns available dates and time slots for current month when schedule is se
      *
      * System has date padding hard-coded
      * to allow new appointments to be booked
-     * at lest 2 days in advance giving admin
+     * at least 2 days in advance, giving admin
      * time to prepare.
      *
-     * Resulting number of days by doing manual
+     * The resulting number of days by doing a manual
      * count starting on 1st November 2024 is 27.
      *
-     * First active day should be 4th as system
+     * The first active day should be the 4th as a system
      * adds 2 days of buffer ahead.
      */
     $availability = Availability::factory()->create();
@@ -155,26 +155,26 @@ it('returns available dates and time slots for current month when schedule is se
     Carbon::setTestNow($testDate);
 
     /**
-     * Current date is set for 1st of November 2024
+     * The current date is set for the 1st of November 2024
      *
-     * Four Availability Time Slots are created
+     * Four Availability Time Slots are created,
      * Two for weekdays and 2 for Sundays
      * Type weekly Schedule is created and set to be
      * active.
-     * I create three days for which schedule should
+     * I create three days for which the schedule should
      * repeat weekly Monday and Friday and Sunday.
      *
      * System has date padding hard-coded
      * to allow new appointments to be booked
-     * at lest 2 days in advance giving admin
+     * at least 2 days in advance, giving admin
      * time to prepare.
      *
-     * Resulting number of days by doing manual
+     * The resulting number of days by doing a manual
      * count starting on 1st November 2024 is 11.
      *
      * First active day should be 4th as system
      * adds 2 days of buffer ahead. (we don't see
-     * 1st of November which is Friday or
+     * the 1st of November, which is Friday or
      * 3rd which is Sunday)
      *
      * Result should only contain 4 Mondays and 4 Fridays
@@ -427,11 +427,12 @@ it('can book an appointment', function () {
             'excluded_days' => [],
         ]);
 
+    $this->actingAs($user);
+
     $appointment = (new ScheduleService)
         ->bookAppointment(
             date: '2024-11-04',
             timeSlot: '11:00',
-            user: $user,
             schedule: $schedule
         );
 
@@ -480,17 +481,17 @@ it('will throw exception when booking appointment that is booked and pending', f
             'excluded_days' => [],
         ]);
 
+    $this->actingAs($user);
+
     (new ScheduleService)->bookAppointment(
         date: '2024-11-04',
         timeSlot: '11:00',
-        user: $user,
         schedule: $schedule
     );
 
     (new ScheduleService)->bookAppointment(
         date: '2024-11-04',
         timeSlot: '11:00',
-        user: $user,
         schedule: $schedule
     );
 })->throws(Exception::class, 'Appointment slot is no longer available');
@@ -546,10 +547,11 @@ it('will re-book appointment with correct details in place of cancelled one', fu
 
     $newUser = User::factory()->create();
 
+    $this->actingAs($newUser);
+
     (new ScheduleService)->bookAppointment(
         date: '2024-11-04',
         timeSlot: '11:00',
-        user: $newUser,
         schedule: $schedule
     );
 
