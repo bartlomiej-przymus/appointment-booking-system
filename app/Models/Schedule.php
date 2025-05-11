@@ -62,7 +62,7 @@ class Schedule extends Model
 
         return $this->hasValidDateRange()
             && $this->isWithinActivePeriod()
-            && ! $this->hasSchedulesSetToActive();
+            && ! $this->activeScheduleExists();
     }
 
     public function hasValidDateRange(): bool
@@ -75,7 +75,7 @@ class Schedule extends Model
         return now()->between($this->active_from, $this->active_to);
     }
 
-    public function hasSchedulesSetToActive(): bool
+    public function activeScheduleExists(): bool
     {
         return Schedule::where('active', true)->exists();
     }

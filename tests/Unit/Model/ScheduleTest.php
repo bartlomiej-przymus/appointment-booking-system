@@ -25,11 +25,11 @@ it('can check if schedules set to active exist', function () {
         'active' => false,
     ]);
 
-    expect($newSchedule->hasSchedulesSetToActive())->toBeTrue();
+    expect($newSchedule->activeScheduleExists())->toBeTrue();
 
     $activeSchedule->update(['active' => false]);
 
-    expect($newSchedule->hasSchedulesSetToActive())->toBeFalse();
+    expect($newSchedule->activeScheduleExists())->toBeFalse();
 });
 
 it('can check if it has valid date range', function () {
