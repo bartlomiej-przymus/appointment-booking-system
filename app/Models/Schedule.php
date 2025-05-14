@@ -22,6 +22,9 @@ class Schedule extends Model
         'active',
         'active_from',
         'active_to',
+        'price_in_gbp',
+        'price_in_usd',
+        'price_in_eur',
     ];
 
     protected function casts(): array
