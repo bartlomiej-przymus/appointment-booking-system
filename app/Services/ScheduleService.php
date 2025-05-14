@@ -325,7 +325,7 @@ class ScheduleService
             ->where('time_slot', $timeSlot)
             ->where('schedule_id', $scheduleId)
             ->whereNotIn('status', [
-                AppointmentStatus::Cancelled,
+                AppointmentStatus::Canceled,
                 AppointmentStatus::Rescheduled,
             ])
             ->exists();
