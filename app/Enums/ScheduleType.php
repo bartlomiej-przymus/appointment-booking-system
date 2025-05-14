@@ -29,7 +29,6 @@ enum ScheduleType: string implements HasColor, HasLabel
             self::Daily => 'warning',
             self::Weekly => 'info',
             self::Custom => 'success',
-            //            self::Other => 'danger',
         };
     }
 }
