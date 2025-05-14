@@ -185,16 +185,22 @@ class Schedule extends Component
         }
 
         try {
-            $booking = $this->scheduleService
+            $appointment = $this->scheduleService
                 ->bookAppointment(
                     $date,
                     $time,
                     $this->schedule,
                 );
-            $this->dispatch('booking-successful',
-                message: 'Your appointment has been booked!',
-                bookingId: $booking->id
-            );
+
+            $this->redirect(route('payment', $appointment));
+            //            This will be moved somewhere else needs to happen after payment.
+            //            if($appointment->status->is(AppointmentStatus::Paid)) {
+            //                $this->dispatch('booking-successful', message: 'Thank you for booking your appointment. Please remember to confirm your booking via link sent in the email');
+            //            }
+            //            $this->dispatch('booking-successful',
+            //                message: 'Your appointment has been booked!',
+            //                bookingId: $appointment->id
+            //            );
             $this->refreshCalendar();
 
             if ($this->showTimeSlots && $this->selectedDate === $date) {
