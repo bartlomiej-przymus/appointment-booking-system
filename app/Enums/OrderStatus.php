@@ -11,25 +11,25 @@ enum OrderStatus: string implements HasColor, HasLabel
     use EnumTrait;
 
     case Pending = 'pending';
-    case Paid = 'paid';
-    case Hold = 'hold';
+    case Completed = 'completed';
+    case Failed = 'failed';
+
 
     public function getLabel(): ?string
     {
         return match ($this) {
             self::Pending => 'Pending',
-            self::Paid => 'Paid',
-            self::Hold => 'On Hold',
+            self::Completed => 'Completed',
+            self::Failed => 'Failed',
         };
     }
 
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::Hold => 'warning',
-            self::Pending => 'info',
-            self::Paid => 'success',
-            //            self::Other => 'danger',
+            self::Pending => 'warning',
+            self::Completed => 'success',
+            self::Failed => 'danger',
         };
     }
 }
