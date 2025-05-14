@@ -35,11 +35,11 @@ class ScheduleForm
                         ->description(new HtmlString(
                             '<u>Types of schedules:</u><br><br>
                         <b>Daily</b><br>
-                        &nbsp<i>Set this type to have same appointment slots repeat daily except excluded days.</i><br><br>
+                        &nbsp<i>Set this type to have the same appointment slots repeat daily except excluded days.</i><br><br>
                         <b>Weekly</b><br>
                         &nbsp<i>Set this type to have days with different appointment slots repeat weekly.</i><br><br>
                         <b>Custom</b><br>
-                        &nbsp<i>Set this type to choose days and appointment slots for specific date range.</i>'
+                        &nbsp<i>Set this type to choose days and appointment slots for a specific date range.</i>'
                         ))
                         ->schema([
                             Select::make('type')
@@ -54,6 +54,30 @@ class ScheduleForm
                         ]),
                 ])->columnSpan(2),
                 Group::make([
+                    Section::make('Schedule Pricing')
+                        ->schema([
+                            TextInput::make('price_in_gbp')
+                                ->prefix('£')
+                                ->numeric()
+                                ->step(1)
+                                ->minValue(0)
+                                ->afterStateUpdated(fn ($state) => $state ? (int) ($state * 100) : null)
+                                ->formatStateUsing(fn ($state) => $state ? $state / 100 : null),
+                            TextInput::make('price_in_usd')
+                                ->prefix('$')
+                                ->numeric()
+                                ->step(1)
+                                ->minValue(0)
+                                ->afterStateUpdated(fn ($state) => $state ? (int) ($state * 100) : null)
+                                ->formatStateUsing(fn ($state) => $state ? $state / 100 : null),
+                            TextInput::make('price_in_eur')
+                                ->prefix('€')
+                                ->numeric()
+                                ->step(1)
+                                ->minValue(0)
+                                ->afterStateUpdated(fn ($state) => $state ? (int) ($state * 100) : null)
+                                ->formatStateUsing(fn ($state) => $state ? $state / 100 : null),
+                        ]),
                     Section::make('Schedule Settings')
                         ->schema([
                             Toggle::make('active')

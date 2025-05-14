@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ScheduleType::values())->nullable();
             $table->string('excluded_days')->nullable();
+            $table->integer('price_in_gbp')->nullable();
+            $table->integer('price_in_usd')->nullable();
+            $table->integer('price_in_eur')->nullable();
             $table->boolean('active')->default(false);
             $table->date('active_from')->nullable();
             $table->date('active_to')->nullable();
