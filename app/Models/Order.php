@@ -27,14 +27,14 @@ class Order extends Model
         'status' => OrderStatus::class,
     ];
 
-//    Keeping this as an example of dynamic setter and getter for now
-//    protected function total(): Attribute
-//    {
-//        return Attribute::make(
-//            get: fn ($value): int => $value / 100,
-//            set: fn ($value): int => $value * 100
-//        );
-//    }
+    //    Keeping this as an example of dynamic setter and getter for now
+    //    protected function total(): Attribute
+    //    {
+    //        return Attribute::make(
+    //            get: fn ($value): int => $value / 100,
+    //            set: fn ($value): int => $value * 100
+    //        );
+    //    }
 
     public function user(): BelongsTo
     {

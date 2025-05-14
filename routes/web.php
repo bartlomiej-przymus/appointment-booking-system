@@ -19,5 +19,4 @@ Route::middleware(['auth'])->group(function () {
     )->name('payment.success');
 });
 
-
 require __DIR__.'/auth.php';

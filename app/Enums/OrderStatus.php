@@ -14,7 +14,6 @@ enum OrderStatus: string implements HasColor, HasLabel
     case Completed = 'completed';
     case Failed = 'failed';
 
-
     public function getLabel(): ?string
     {
         return match ($this) {
