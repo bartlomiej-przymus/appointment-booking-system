@@ -11,18 +11,18 @@ enum AppointmentStatus: string implements HasColor, HasLabel
     use EnumTrait;
 
     case Pending = 'pending'; // user started booking haven't paid yet
-    case Paid = 'paid'; // user paid for appointment needs to confirm in email time and date
-    case Cancelled = 'cancelled'; // appointment has not been confirmed and it got cancelled
-    case Confirmed = 'confirmed'; // appointment has been confirmed by user
-    case Completed = 'completed'; // appointment took place (send feedback form if enabled)
-    case Rescheduled = 'rescheduled'; // appointment has been rescheduled
+    case Paid = 'paid'; // the user paid for appointment needs to confirm in email time and date
+    case Canceled = 'canceled'; // the appointment has not been confirmed and it got canceled
+    case Confirmed = 'confirmed'; // user has confirmed appointment
+    case Completed = 'completed'; // appointment took place (send a feedback form if enabled)
+    case Rescheduled = 'rescheduled'; // the appointment has been rescheduled
 
     public function getLabel(): ?string
     {
         return match ($this) {
             self::Pending => 'Pending',
             self::Paid => 'Paid',
-            self::Cancelled => 'Cancelled',
+            self::Canceled => 'Canceled',
             self::Confirmed => 'Confirmed',
             self::Completed => 'Completed',
             self::Rescheduled => 'Rescheduled',
@@ -34,7 +34,7 @@ enum AppointmentStatus: string implements HasColor, HasLabel
         return match ($this) {
             self::Pending => 'gray',
             self::Paid => 'success',
-            self::Cancelled => 'danger',
+            self::Canceled => 'danger',
             self::Confirmed => 'success',
             self::Completed => 'info',
             self::Rescheduled => 'primary',
