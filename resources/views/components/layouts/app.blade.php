@@ -5,9 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         @vite('resources/css/app.css')
         <title>{{ $title ?? 'Page Title' }}</title>
+        @livewireStyles
     </head>
     <body>
         {{ $slot }}
+
+        @livewireScripts
+        <script src="https://js.stripe.com/v3/"></script>
         @stack('scripts')
     </body>
 </html>

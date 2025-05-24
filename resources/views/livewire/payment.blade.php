@@ -1,7 +1,6 @@
 <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="md:flex">
-            <!-- Left Column - Appointment Information (50% on desktop) -->
             <div class="md:w-1/2 p-6 bg-gray-50 border-r border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Appointment Details</h2>
 
@@ -55,7 +54,6 @@
                 @endif
             </div>
 
-            <!-- Right Column - Payment Form (50% on desktop) -->
             <div class="md:w-1/2 p-6">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Payment Information</h2>
 
@@ -66,7 +64,7 @@
                 @endif
 
                 @if($appointment)
-                    <form wire:submit="processPayment" id="payment-form">
+                    <form wire:submit.prevent id="payment-form">
                         <div class="mb-6">
                             <label for="card-element" class="block text-gray-700 mb-2">Credit or debit card</label>
                             <div id="card-element" class="border rounded-md p-3 bg-white"></div>
@@ -97,13 +95,30 @@
 </div>
 
 @push('scripts')
-    <script src="https://js.stripe.com/basil/stripe.js"></script>
     <script>
         document.addEventListener('livewire:initialized', () => {
-            const stripe = Stripe('{{ config('cashier.key') }}');
-            const elements = stripe.elements();
-            const cardElement = elements.create('card');
 
+            const stripe = Stripe('{{ config('cashier.key') }}');
+
+            const elements = stripe.elements();
+
+            const style = {
+                base: {
+                    color: '#32325d',
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            };
+
+            const cardElement = elements.create('card', {style: style});
             cardElement.mount('#card-element');
 
             const cardErrors = document.getElementById('card-errors');
@@ -122,17 +137,22 @@
                 const submitButton = document.getElementById('submit-button');
                 submitButton.disabled = true;
 
-                const {paymentMethod, error} = await stripe.createPaymentMethod({
-                    type: 'card',
-                    card: cardElement,
-                });
+                try {
+                    const {paymentMethod, error} = await stripe.createPaymentMethod({
+                        type: 'card',
+                        card: cardElement,
+                    });
 
-                if (error) {
-                    cardErrors.textContent = error.message;
+                    if (error) {
+                        cardErrors.textContent = error.message;
+                        submitButton.disabled = false;
+                    } else {
+                        Livewire.dispatch('set-payment-method', { paymentMethodId: paymentMethod.id });
+                        Livewire.find(document.querySelector('[wire\\:id]').getAttribute('wire:id')).processPayment();
+                    }
+                } catch (e) {
+                    cardErrors.textContent = "An unexpected error occurred. Please try again.";
                     submitButton.disabled = false;
-                } else {
-                    @this.set('paymentMethod', paymentMethod.id);
-                    @this.processPayment();
                 }
             });
         });

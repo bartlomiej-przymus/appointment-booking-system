@@ -30,6 +30,8 @@ class Payment extends Component
         'currency' => 'required|in:gbp,usd,eur',
     ];
 
+    protected $listeners = ['set-payment-method' => 'setPaymentMethod'];
+
     public function mount($appointmentId = null)
     {
         $this->appointmentId = $appointmentId;
@@ -51,6 +53,11 @@ class Payment extends Component
             default:
                 $this->amount = $this->appointment->schedule->price_in_gbp;
         }
+    }
+
+    public function setPaymentMethod($data)
+    {
+        $this->paymentMethod = $data['paymentMethodId'];
     }
 
     public function processPayment()
